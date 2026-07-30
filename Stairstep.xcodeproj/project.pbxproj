@@ -1,0 +1,1373 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		B00000000000000000000101 /* StairsApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000201 /* StairsApp.swift */; };
+		B00000000000000000000102 /* StepDocumentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000202 /* StepDocumentView.swift */; };
+		B00000000000000000000103 /* StepFileDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000203 /* StepFileDocument.swift */; };
+		B00000000000000000000104 /* StepSceneCanvas.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000204 /* StepSceneCanvas.swift */; };
+		B00000000000000000000105 /* StepSceneLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000205 /* StepSceneLoader.swift */; };
+		B00000000000000000000106 /* StepViewCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000206 /* StepViewCommands.swift */; };
+		B00000000000000000000107 /* StairsStepImporter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000221 /* StairsStepImporter.cpp */; settings = {COMPILER_FLAGS = "-Wno-documentation -Wno-deprecated-declarations"; }; };
+		B00000000000000000000108 /* StepMeasurementOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000207 /* StepMeasurementOverlay.swift */; };
+		B00000000000000000000109 /* StairsDistractionFree.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000208 /* StairsDistractionFree.swift */; };
+		B00000000000000000000163 /* RealityStepCanvas.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000259 /* RealityStepCanvas.swift */; };
+		B00000000000000000000170 /* RealityStepShaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000260 /* RealityStepShaders.metal */; };
+		B0000000000000000000017A /* RealityStepOverlays.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000026A /* RealityStepOverlays.swift */; };
+		B00000000000000000000121 /* PlatformSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000211 /* PlatformSupport.swift */; };
+		B00000000000000000000122 /* StepMaterialKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000212 /* StepMaterialKey.swift */; };
+		B00000000000000000000123 /* StepSceneFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000213 /* StepSceneFactory.swift */; };
+		B00000000000000000000124 /* StepSceneModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000214 /* StepSceneModel.swift */; };
+		B00000000000000000000125 /* StepSectionPlane.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000215 /* StepSectionPlane.swift */; };
+		B00000000000000000000126 /* StepSectionCap.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000216 /* StepSectionCap.swift */; };
+		B00000000000000000000127 /* StepSectionShader.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000217 /* StepSectionShader.swift */; };
+		B00000000000000000000128 /* StepSectionTriangulator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000218 /* StepSectionTriangulator.swift */; };
+		B00000000000000000000129 /* StepMeasurement.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000219 /* StepMeasurement.swift */; };
+		B00000000000000000000130 /* StepSnapModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000220 /* StepSnapModel.swift */; };
+		B00000000000000000000140 /* StepSectionSnap.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000230 /* StepSectionSnap.swift */; };
+		B00000000000000000000150 /* StepMeshExporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000240 /* StepMeshExporter.swift */; };
+		B00000000000000000000174 /* StepPrimaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000269 /* StepPrimaryView.swift */; };
+		B00000000000000000000160 /* StepSnapScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000258 /* StepSnapScene.swift */; };
+		B00000000000000000000193 /* ZipArchive.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000026B /* ZipArchive.swift */; };
+		B00000000000000000000194 /* FCStdDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000026C /* FCStdDocument.swift */; };
+		B00000000000000000000141 /* PreviewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000231 /* PreviewViewController.swift */; };
+		B00000000000000000000142 /* StairsStepImporter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000221 /* StairsStepImporter.cpp */; settings = {COMPILER_FLAGS = "-Wno-documentation -Wno-deprecated-declarations"; }; };
+		B00000000000000000000151 /* ThumbnailProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000232 /* ThumbnailProvider.swift */; };
+		B00000000000000000000152 /* StairsStepImporter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000221 /* StairsStepImporter.cpp */; settings = {COMPILER_FLAGS = "-Wno-documentation -Wno-deprecated-declarations"; }; };
+		B00000000000000000000161 /* AppIcon.icns in Resources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000243 /* AppIcon.icns */; platformFilters = (macos, ); };
+		B00000000000000000000162 /* Stair Demo.step in Resources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000249 /* Stair Demo.step */; };
+		B00000000000000000000164 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000266 /* Assets.xcassets */; platformFilter = ios; };
+		B00000000000000000000171 /* libStairsCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A00000000000000000000103 /* libStairsCore.a */; };
+		B00000000000000000000172 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A00000000000000000000251 /* AppKit.framework */; platformFilters = (macos, ); };
+		B00000000000000000000173 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A00000000000000000000252 /* IOKit.framework */; platformFilters = (macos, ); };
+		B00000000000000000000175 /* libStairsCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A00000000000000000000103 /* libStairsCore.a */; };
+		B00000000000000000000176 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A00000000000000000000251 /* AppKit.framework */; };
+		B00000000000000000000177 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A00000000000000000000252 /* IOKit.framework */; };
+		B00000000000000000000178 /* QuickLookUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A00000000000000000000253 /* QuickLookUI.framework */; };
+		B00000000000000000000179 /* libStairsCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A00000000000000000000103 /* libStairsCore.a */; };
+		B00000000000000000000180 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A00000000000000000000251 /* AppKit.framework */; };
+		B00000000000000000000181 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A00000000000000000000252 /* IOKit.framework */; };
+		B00000000000000000000182 /* QuickLookThumbnailing.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A00000000000000000000254 /* QuickLookThumbnailing.framework */; };
+		B00000000000000000000183 /* OpenCascadeStatic/OpenCascadeStairs.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = A00000000000000000000257 /* OpenCascadeStatic/OpenCascadeStairs.xcframework */; };
+		B00000000000000000000184 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A00000000000000000000255 /* QuartzCore.framework */; platformFilter = ios; };
+		B00000000000000000000185 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A00000000000000000000256 /* OpenGLES.framework */; platformFilter = ios; };
+		B00000000000000000000191 /* StairsQuickLookPreview.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = A00000000000000000000105 /* StairsQuickLookPreview.appex */; platformFilters = (macos, ); settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		B00000000000000000000192 /* StairsQuickLookThumbnail.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = A00000000000000000000106 /* StairsQuickLookThumbnail.appex */; platformFilters = (macos, ); settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		C00000000000000000000101 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E00000000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D00000000000000000000003;
+			remoteInfo = StairsCore;
+		};
+		C00000000000000000000102 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E00000000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D00000000000000000000005;
+			remoteInfo = StairsQuickLookPreview;
+		};
+		C00000000000000000000103 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E00000000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D00000000000000000000006;
+			remoteInfo = StairsQuickLookThumbnail;
+		};
+		C00000000000000000000105 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E00000000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D00000000000000000000003;
+			remoteInfo = StairsCore;
+		};
+		C00000000000000000000106 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E00000000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D00000000000000000000003;
+			remoteInfo = StairsCore;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		F00000000000000000000004 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				B00000000000000000000191 /* StairsQuickLookPreview.appex in Embed Foundation Extensions */,
+				B00000000000000000000192 /* StairsQuickLookThumbnail.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		A00000000000000000000101 /* Stairstep.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Stairstep.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A00000000000000000000103 /* libStairsCore.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libStairsCore.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		A00000000000000000000105 /* StairsQuickLookPreview.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = StairsQuickLookPreview.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		A00000000000000000000106 /* StairsQuickLookThumbnail.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = StairsQuickLookThumbnail.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		A00000000000000000000201 /* StairsApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StairsApp.swift; sourceTree = "<group>"; };
+		A00000000000000000000202 /* StepDocumentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepDocumentView.swift; sourceTree = "<group>"; };
+		A00000000000000000000203 /* StepFileDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepFileDocument.swift; sourceTree = "<group>"; };
+		A00000000000000000000204 /* StepSceneCanvas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepSceneCanvas.swift; sourceTree = "<group>"; };
+		A00000000000000000000205 /* StepSceneLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepSceneLoader.swift; sourceTree = "<group>"; };
+		A00000000000000000000206 /* StepViewCommands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepViewCommands.swift; sourceTree = "<group>"; };
+		A00000000000000000000207 /* StepMeasurementOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepMeasurementOverlay.swift; sourceTree = "<group>"; };
+		A00000000000000000000208 /* StairsDistractionFree.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StairsDistractionFree.swift; sourceTree = "<group>"; };
+		A00000000000000000000259 /* RealityStepCanvas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealityStepCanvas.swift; sourceTree = "<group>"; };
+		A00000000000000000000260 /* RealityStepShaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = RealityStepShaders.metal; sourceTree = "<group>"; };
+		A0000000000000000000026A /* RealityStepOverlays.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealityStepOverlays.swift; sourceTree = "<group>"; };
+		A00000000000000000000211 /* PlatformSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlatformSupport.swift; sourceTree = "<group>"; };
+		A00000000000000000000212 /* StepMaterialKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepMaterialKey.swift; sourceTree = "<group>"; };
+		A00000000000000000000213 /* StepSceneFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepSceneFactory.swift; sourceTree = "<group>"; };
+		A00000000000000000000214 /* StepSceneModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepSceneModel.swift; sourceTree = "<group>"; };
+		A00000000000000000000215 /* StepSectionPlane.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepSectionPlane.swift; sourceTree = "<group>"; };
+		A00000000000000000000216 /* StepSectionCap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepSectionCap.swift; sourceTree = "<group>"; };
+		A00000000000000000000217 /* StepSectionShader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepSectionShader.swift; sourceTree = "<group>"; };
+		A00000000000000000000218 /* StepSectionTriangulator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepSectionTriangulator.swift; sourceTree = "<group>"; };
+		A00000000000000000000219 /* StepMeasurement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepMeasurement.swift; sourceTree = "<group>"; };
+		A00000000000000000000220 /* StepSnapModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepSnapModel.swift; sourceTree = "<group>"; };
+		A00000000000000000000221 /* StairsStepImporter.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = StairsStepImporter.cpp; sourceTree = "<group>"; };
+		A00000000000000000000222 /* StairsStepImporter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = StairsStepImporter.h; sourceTree = "<group>"; };
+		A00000000000000000000223 /* module.modulemap */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.module-map"; path = module.modulemap; sourceTree = "<group>"; };
+		A00000000000000000000230 /* StepSectionSnap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepSectionSnap.swift; sourceTree = "<group>"; };
+		A00000000000000000000240 /* StepMeshExporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepMeshExporter.swift; sourceTree = "<group>"; };
+		A00000000000000000000269 /* StepPrimaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepPrimaryView.swift; sourceTree = "<group>"; };
+		A00000000000000000000258 /* StepSnapScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepSnapScene.swift; sourceTree = "<group>"; };
+		A0000000000000000000026B /* ZipArchive.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZipArchive.swift; sourceTree = "<group>"; };
+		A0000000000000000000026C /* FCStdDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FCStdDocument.swift; sourceTree = "<group>"; };
+		A00000000000000000000231 /* PreviewViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewViewController.swift; sourceTree = "<group>"; };
+		A00000000000000000000232 /* ThumbnailProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThumbnailProvider.swift; sourceTree = "<group>"; };
+		A00000000000000000000241 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A00000000000000000000242 /* iOSInfo.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = iOSInfo.plist; sourceTree = "<group>"; };
+		A00000000000000000000243 /* AppIcon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = AppIcon.icns; sourceTree = "<group>"; };
+		A00000000000000000000244 /* QuickLookExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = QuickLookExtension.entitlements; sourceTree = "<group>"; };
+		A00000000000000000000245 /* StairsQuickLookPreview Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "StairsQuickLookPreview Info.plist"; path = StairsQuickLookPreview.appex/Contents/Info.plist; sourceTree = "<group>"; };
+		A00000000000000000000246 /* StairsQuickLookThumbnail Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "StairsQuickLookThumbnail Info.plist"; path = StairsQuickLookThumbnail.appex/Contents/Info.plist; sourceTree = "<group>"; };
+		A00000000000000000000247 /* LICENSE_LGPL_21.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE_LGPL_21.txt; sourceTree = "<group>"; };
+		A00000000000000000000248 /* OCCT_LGPL_EXCEPTION.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = OCCT_LGPL_EXCEPTION.txt; sourceTree = "<group>"; };
+		A00000000000000000000249 /* Stair Demo.step */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Stair Demo.step"; sourceTree = "<group>"; };
+		A00000000000000000000250 /* license.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = license.txt; sourceTree = "<group>"; };
+		A00000000000000000000251 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
+		A00000000000000000000252 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
+		A00000000000000000000253 /* QuickLookUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuickLookUI.framework; path = System/Library/Frameworks/QuickLookUI.framework; sourceTree = SDKROOT; };
+		A00000000000000000000254 /* QuickLookThumbnailing.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuickLookThumbnailing.framework; path = System/Library/Frameworks/QuickLookThumbnailing.framework; sourceTree = SDKROOT; };
+		A00000000000000000000255 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		A00000000000000000000256 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
+		A00000000000000000000257 /* OpenCascadeStatic/OpenCascadeStairs.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = OpenCascadeStatic/OpenCascadeStairs.xcframework; sourceTree = "<group>"; };
+		A00000000000000000000261 /* Package.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
+		A00000000000000000000262 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		A00000000000000000000264 /* build-occt.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "build-occt.sh"; sourceTree = "<group>"; };
+		A00000000000000000000265 /* generate_app_icon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = generate_app_icon.swift; sourceTree = "<group>"; };
+		A00000000000000000000266 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		A00000000000000000000267 /* build-occt-xcframework.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "build-occt-xcframework.sh"; sourceTree = "<group>"; };
+		A00000000000000000000268 /* build-occt-ios.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "build-occt-ios.sh"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		F00000000000000000000002 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B00000000000000000000171 /* libStairsCore.a in Frameworks */,
+				B00000000000000000000183 /* OpenCascadeStatic/OpenCascadeStairs.xcframework in Frameworks */,
+				B00000000000000000000172 /* AppKit.framework in Frameworks */,
+				B00000000000000000000173 /* IOKit.framework in Frameworks */,
+				B00000000000000000000184 /* QuartzCore.framework in Frameworks */,
+				B00000000000000000000185 /* OpenGLES.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F00000000000000000000042 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B00000000000000000000175 /* libStairsCore.a in Frameworks */,
+				B00000000000000000000176 /* AppKit.framework in Frameworks */,
+				B00000000000000000000177 /* IOKit.framework in Frameworks */,
+				B00000000000000000000178 /* QuickLookUI.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F00000000000000000000052 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B00000000000000000000179 /* libStairsCore.a in Frameworks */,
+				B00000000000000000000180 /* AppKit.framework in Frameworks */,
+				B00000000000000000000181 /* IOKit.framework in Frameworks */,
+				B00000000000000000000182 /* QuickLookThumbnailing.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		900000000000000000000001 = {
+			isa = PBXGroup;
+			children = (
+				A00000000000000000000262 /* README.md */,
+				A00000000000000000000261 /* Package.swift */,
+				900000000000000000000010 /* Sources */,
+				900000000000000000000020 /* App */,
+				900000000000000000000030 /* Vendor */,
+				900000000000000000000040 /* scripts */,
+				900000000000000000000050 /* Frameworks */,
+				900000000000000000000060 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		900000000000000000000010 /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				900000000000000000000011 /* Stairs */,
+				900000000000000000000012 /* StairsCore */,
+				900000000000000000000013 /* StairsStepImporter */,
+				900000000000000000000014 /* StairsQuickLookPreview */,
+				900000000000000000000015 /* StairsQuickLookThumbnail */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		900000000000000000000011 /* Stairs */ = {
+			isa = PBXGroup;
+			children = (
+				A00000000000000000000201 /* StairsApp.swift */,
+				A00000000000000000000202 /* StepDocumentView.swift */,
+				A00000000000000000000203 /* StepFileDocument.swift */,
+				A00000000000000000000204 /* StepSceneCanvas.swift */,
+				A00000000000000000000205 /* StepSceneLoader.swift */,
+				A00000000000000000000206 /* StepViewCommands.swift */,
+				A00000000000000000000207 /* StepMeasurementOverlay.swift */,
+				A00000000000000000000208 /* StairsDistractionFree.swift */,
+				A00000000000000000000259 /* RealityStepCanvas.swift */,
+				A00000000000000000000260 /* RealityStepShaders.metal */,
+				A0000000000000000000026A /* RealityStepOverlays.swift */,
+			);
+			path = Stairs;
+			sourceTree = "<group>";
+		};
+		900000000000000000000012 /* StairsCore */ = {
+			isa = PBXGroup;
+			children = (
+				A00000000000000000000211 /* PlatformSupport.swift */,
+				A00000000000000000000212 /* StepMaterialKey.swift */,
+				A00000000000000000000213 /* StepSceneFactory.swift */,
+				A00000000000000000000214 /* StepSceneModel.swift */,
+				A00000000000000000000215 /* StepSectionPlane.swift */,
+				A00000000000000000000216 /* StepSectionCap.swift */,
+				A00000000000000000000217 /* StepSectionShader.swift */,
+				A00000000000000000000218 /* StepSectionTriangulator.swift */,
+				A00000000000000000000219 /* StepMeasurement.swift */,
+				A00000000000000000000220 /* StepSnapModel.swift */,
+				A00000000000000000000230 /* StepSectionSnap.swift */,
+				A00000000000000000000240 /* StepMeshExporter.swift */,
+				A00000000000000000000269 /* StepPrimaryView.swift */,
+				A00000000000000000000258 /* StepSnapScene.swift */,
+				A0000000000000000000026B /* ZipArchive.swift */,
+				A0000000000000000000026C /* FCStdDocument.swift */,
+			);
+			path = StairsCore;
+			sourceTree = "<group>";
+		};
+		900000000000000000000013 /* StairsStepImporter */ = {
+			isa = PBXGroup;
+			children = (
+				A00000000000000000000221 /* StairsStepImporter.cpp */,
+				900000000000000000000016 /* include */,
+			);
+			path = StairsStepImporter;
+			sourceTree = "<group>";
+		};
+		900000000000000000000014 /* StairsQuickLookPreview */ = {
+			isa = PBXGroup;
+			children = (
+				A00000000000000000000231 /* PreviewViewController.swift */,
+			);
+			path = StairsQuickLookPreview;
+			sourceTree = "<group>";
+		};
+		900000000000000000000015 /* StairsQuickLookThumbnail */ = {
+			isa = PBXGroup;
+			children = (
+				A00000000000000000000232 /* ThumbnailProvider.swift */,
+			);
+			path = StairsQuickLookThumbnail;
+			sourceTree = "<group>";
+		};
+		900000000000000000000016 /* include */ = {
+			isa = PBXGroup;
+			children = (
+				A00000000000000000000222 /* StairsStepImporter.h */,
+				A00000000000000000000223 /* module.modulemap */,
+			);
+			path = include;
+			sourceTree = "<group>";
+		};
+		900000000000000000000020 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				A00000000000000000000241 /* Info.plist */,
+				A00000000000000000000242 /* iOSInfo.plist */,
+				900000000000000000000021 /* Resources */,
+				900000000000000000000022 /* PlugIns */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		900000000000000000000021 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				A00000000000000000000243 /* AppIcon.icns */,
+				A00000000000000000000266 /* Assets.xcassets */,
+				A00000000000000000000249 /* Stair Demo.step */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		900000000000000000000022 /* PlugIns */ = {
+			isa = PBXGroup;
+			children = (
+				A00000000000000000000244 /* QuickLookExtension.entitlements */,
+				A00000000000000000000245 /* StairsQuickLookPreview Info.plist */,
+				A00000000000000000000246 /* StairsQuickLookThumbnail Info.plist */,
+			);
+			path = PlugIns;
+			sourceTree = "<group>";
+		};
+		900000000000000000000030 /* Vendor */ = {
+			isa = PBXGroup;
+			children = (
+				A00000000000000000000257 /* OpenCascadeStatic/OpenCascadeStairs.xcframework */,
+				900000000000000000000031 /* OpenCascadeStatic/macos-arm64/share/doc/opencascade */,
+				900000000000000000000032 /* RapidJSON */,
+			);
+			path = Vendor;
+			sourceTree = "<group>";
+		};
+		900000000000000000000031 /* OpenCascadeStatic/macos-arm64/share/doc/opencascade */ = {
+			isa = PBXGroup;
+			children = (
+				A00000000000000000000247 /* LICENSE_LGPL_21.txt */,
+				A00000000000000000000248 /* OCCT_LGPL_EXCEPTION.txt */,
+			);
+			path = "OpenCascadeStatic/macos-arm64/share/doc/opencascade";
+			sourceTree = "<group>";
+		};
+		900000000000000000000032 /* RapidJSON */ = {
+			isa = PBXGroup;
+			children = (
+				A00000000000000000000250 /* license.txt */,
+			);
+			path = RapidJSON;
+			sourceTree = "<group>";
+		};
+		900000000000000000000040 /* scripts */ = {
+			isa = PBXGroup;
+			children = (
+				A00000000000000000000264 /* build-occt.sh */,
+				A00000000000000000000268 /* build-occt-ios.sh */,
+				A00000000000000000000267 /* build-occt-xcframework.sh */,
+				A00000000000000000000265 /* generate_app_icon.swift */,
+			);
+			path = scripts;
+			sourceTree = "<group>";
+		};
+		900000000000000000000050 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				A00000000000000000000251 /* AppKit.framework */,
+				A00000000000000000000252 /* IOKit.framework */,
+				A00000000000000000000256 /* OpenGLES.framework */,
+				A00000000000000000000255 /* QuartzCore.framework */,
+				A00000000000000000000253 /* QuickLookUI.framework */,
+				A00000000000000000000254 /* QuickLookThumbnailing.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		900000000000000000000060 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A00000000000000000000101 /* Stairstep.app */,
+				A00000000000000000000103 /* libStairsCore.a */,
+				A00000000000000000000105 /* StairsQuickLookPreview.appex */,
+				A00000000000000000000106 /* StairsQuickLookThumbnail.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		D00000000000000000000001 /* Stairstep */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 700000000000000000000001 /* Build configuration list for PBXNativeTarget "Stairstep" */;
+			buildPhases = (
+				F00000000000000000000001 /* Sources */,
+				F00000000000000000000002 /* Frameworks */,
+				F00000000000000000000003 /* Resources */,
+				F00000000000000000000004 /* Embed Foundation Extensions */,
+				F00000000000000000000005 /* Copy Third-Party Notices */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				C00000000000000000000201 /* PBXTargetDependency */,
+				C00000000000000000000202 /* PBXTargetDependency */,
+				C00000000000000000000203 /* PBXTargetDependency */,
+			);
+			name = Stairstep;
+			productName = Stairstep;
+			productReference = A00000000000000000000101 /* Stairstep.app */;
+			productType = "com.apple.product-type.application";
+		};
+		D00000000000000000000003 /* StairsCore */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 700000000000000000000003 /* Build configuration list for PBXNativeTarget "StairsCore" */;
+			buildPhases = (
+				F00000000000000000000021 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = StairsCore;
+			productName = StairsCore;
+			productReference = A00000000000000000000103 /* libStairsCore.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		D00000000000000000000005 /* StairsQuickLookPreview */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 700000000000000000000005 /* Build configuration list for PBXNativeTarget "StairsQuickLookPreview" */;
+			buildPhases = (
+				F00000000000000000000041 /* Sources */,
+				F00000000000000000000042 /* Frameworks */,
+				F00000000000000000000043 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				C00000000000000000000205 /* PBXTargetDependency */,
+			);
+			name = StairsQuickLookPreview;
+			productName = StairsQuickLookPreview;
+			productReference = A00000000000000000000105 /* StairsQuickLookPreview.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		D00000000000000000000006 /* StairsQuickLookThumbnail */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 700000000000000000000006 /* Build configuration list for PBXNativeTarget "StairsQuickLookThumbnail" */;
+			buildPhases = (
+				F00000000000000000000051 /* Sources */,
+				F00000000000000000000052 /* Frameworks */,
+				F00000000000000000000053 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				C00000000000000000000206 /* PBXTargetDependency */,
+			);
+			name = StairsQuickLookThumbnail;
+			productName = StairsQuickLookThumbnail;
+			productReference = A00000000000000000000106 /* StairsQuickLookThumbnail.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		E00000000000000000000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2640;
+				LastUpgradeCheck = 2700;
+				TargetAttributes = {
+					D00000000000000000000001 = {
+						CreatedOnToolsVersion = 26.4;
+					};
+					D00000000000000000000003 = {
+						CreatedOnToolsVersion = 26.4;
+					};
+					D00000000000000000000005 = {
+						CreatedOnToolsVersion = 26.4;
+					};
+					D00000000000000000000006 = {
+						CreatedOnToolsVersion = 26.4;
+					};
+				};
+			};
+			buildConfigurationList = 700000000000000000000000 /* Build configuration list for PBXProject "Stairstep" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 900000000000000000000001;
+			productRefGroup = 900000000000000000000060 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				D00000000000000000000001 /* Stairstep */,
+				D00000000000000000000003 /* StairsCore */,
+				D00000000000000000000005 /* StairsQuickLookPreview */,
+				D00000000000000000000006 /* StairsQuickLookThumbnail */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		F00000000000000000000003 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B00000000000000000000161 /* AppIcon.icns in Resources */,
+				B00000000000000000000164 /* Assets.xcassets in Resources */,
+				B00000000000000000000162 /* Stair Demo.step in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F00000000000000000000043 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F00000000000000000000053 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		F00000000000000000000005 /* Copy Third-Party Notices */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/Vendor/OpenCascadeStatic/macos-arm64/share/doc/opencascade/LICENSE_LGPL_21.txt",
+				"$(SRCROOT)/Vendor/OpenCascadeStatic/macos-arm64/share/doc/opencascade/OCCT_LGPL_EXCEPTION.txt",
+				"$(SRCROOT)/Vendor/RapidJSON/license.txt",
+			);
+			name = "Copy Third-Party Notices";
+			outputPaths = (
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/ThirdPartyLicenses/OpenCascade/LICENSE_LGPL_21.txt",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/ThirdPartyLicenses/OpenCascade/OCCT_LGPL_EXCEPTION.txt",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/ThirdPartyLicenses/RapidJSON/license.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -euo pipefail\nLICENSES_ROOT=\"$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/ThirdPartyLicenses\"\nOCCT_LICENSE_DIR=\"$SRCROOT/Vendor/OpenCascadeStatic/macos-arm64/share/doc/opencascade\"\nmkdir -p \"$LICENSES_ROOT/OpenCascade\" \"$LICENSES_ROOT/RapidJSON\"\ncp \"$OCCT_LICENSE_DIR/LICENSE_LGPL_21.txt\" \"$LICENSES_ROOT/OpenCascade/LICENSE_LGPL_21.txt\"\ncp \"$OCCT_LICENSE_DIR/OCCT_LGPL_EXCEPTION.txt\" \"$LICENSES_ROOT/OpenCascade/OCCT_LGPL_EXCEPTION.txt\"\ncp \"$SRCROOT/Vendor/RapidJSON/license.txt\" \"$LICENSES_ROOT/RapidJSON/license.txt\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		F00000000000000000000001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B00000000000000000000101 /* StairsApp.swift in Sources */,
+				B00000000000000000000102 /* StepDocumentView.swift in Sources */,
+				B00000000000000000000103 /* StepFileDocument.swift in Sources */,
+				B00000000000000000000104 /* StepSceneCanvas.swift in Sources */,
+				B00000000000000000000105 /* StepSceneLoader.swift in Sources */,
+				B00000000000000000000106 /* StepViewCommands.swift in Sources */,
+				B00000000000000000000108 /* StepMeasurementOverlay.swift in Sources */,
+				B00000000000000000000109 /* StairsDistractionFree.swift in Sources */,
+				B00000000000000000000163 /* RealityStepCanvas.swift in Sources */,
+				B00000000000000000000170 /* RealityStepShaders.metal in Sources */,
+				B0000000000000000000017A /* RealityStepOverlays.swift in Sources */,
+				B00000000000000000000107 /* StairsStepImporter.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F00000000000000000000021 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B00000000000000000000121 /* PlatformSupport.swift in Sources */,
+				B00000000000000000000122 /* StepMaterialKey.swift in Sources */,
+				B00000000000000000000123 /* StepSceneFactory.swift in Sources */,
+				B00000000000000000000124 /* StepSceneModel.swift in Sources */,
+				B00000000000000000000125 /* StepSectionPlane.swift in Sources */,
+				B00000000000000000000126 /* StepSectionCap.swift in Sources */,
+				B00000000000000000000127 /* StepSectionShader.swift in Sources */,
+				B00000000000000000000128 /* StepSectionTriangulator.swift in Sources */,
+				B00000000000000000000129 /* StepMeasurement.swift in Sources */,
+				B00000000000000000000130 /* StepSnapModel.swift in Sources */,
+				B00000000000000000000140 /* StepSectionSnap.swift in Sources */,
+				B00000000000000000000150 /* StepMeshExporter.swift in Sources */,
+				B00000000000000000000174 /* StepPrimaryView.swift in Sources */,
+				B00000000000000000000160 /* StepSnapScene.swift in Sources */,
+				B00000000000000000000193 /* ZipArchive.swift in Sources */,
+				B00000000000000000000194 /* FCStdDocument.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F00000000000000000000041 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B00000000000000000000141 /* PreviewViewController.swift in Sources */,
+				B00000000000000000000142 /* StairsStepImporter.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F00000000000000000000051 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B00000000000000000000151 /* ThumbnailProvider.swift in Sources */,
+				B00000000000000000000152 /* StairsStepImporter.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		C00000000000000000000201 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D00000000000000000000003 /* StairsCore */;
+			targetProxy = C00000000000000000000101 /* PBXContainerItemProxy */;
+		};
+		C00000000000000000000202 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			platformFilters = (
+				macos,
+			);
+			target = D00000000000000000000005 /* StairsQuickLookPreview */;
+			targetProxy = C00000000000000000000102 /* PBXContainerItemProxy */;
+		};
+		C00000000000000000000203 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			platformFilters = (
+				macos,
+			);
+			target = D00000000000000000000006 /* StairsQuickLookThumbnail */;
+			targetProxy = C00000000000000000000103 /* PBXContainerItemProxy */;
+		};
+		C00000000000000000000205 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D00000000000000000000003 /* StairsCore */;
+			targetProxy = C00000000000000000000105 /* PBXContainerItemProxy */;
+		};
+		C00000000000000000000206 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D00000000000000000000003 /* StairsCore */;
+			targetProxy = C00000000000000000000106 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		800000000000000000000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/Sources/StairsStepImporter/include",
+					"$(SRCROOT)/Vendor/OpenCascadeStatic/macos-arm64/include/opencascade",
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = auto;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		800000000000000000000002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/Sources/StairsStepImporter/include",
+					"$(SRCROOT)/Vendor/OpenCascadeStatic/macos-arm64/include/opencascade",
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = auto;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		800000000000000000000101 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				"ASSETCATALOG_COMPILER_APPICON_NAME[sdk=iphoneos*]" = AppIcon;
+				"ASSETCATALOG_COMPILER_APPICON_NAME[sdk=iphonesimulator*]" = AppIcon;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CLANG_CXX_LIBRARY = "libc++";
+				CODE_SIGNING_ALLOWED = YES;
+				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = App/Stairs.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 2;
+				DEAD_CODE_STRIPPING = YES;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = 257KW9ZJFP;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_MODULE_VERIFIER = YES;
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = x86_64;
+				GENERATE_INFOPLIST_FILE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/Sources/StairsStepImporter/include",
+					"$(SRCROOT)/Vendor/OpenCascadeStatic/OpenCascadeStairs.xcframework/macos-arm64/Headers",
+				);
+				"HEADER_SEARCH_PATHS[sdk=iphoneos*]" = (
+					"$(inherited)",
+					"$(SRCROOT)/Sources/StairsStepImporter/include",
+					"$(SRCROOT)/Vendor/OpenCascadeStatic/OpenCascadeStairs.xcframework/ios-arm64/Headers",
+				);
+				"HEADER_SEARCH_PATHS[sdk=iphonesimulator*]" = (
+					"$(inherited)",
+					"$(SRCROOT)/Sources/StairsStepImporter/include",
+					"$(SRCROOT)/Vendor/OpenCascadeStatic/OpenCascadeStairs.xcframework/ios-arm64-simulator/Headers",
+				);
+				INFOPLIST_FILE = App/Info.plist;
+				"INFOPLIST_FILE[sdk=iphoneos*]" = App/iOSInfo.plist;
+				"INFOPLIST_FILE[sdk=iphonesimulator*]" = App/iOSInfo.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Stairstep;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				"LD_RUNPATH_SEARCH_PATHS[sdk=iphoneos*]" = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				"LD_RUNPATH_SEARCH_PATHS[sdk=iphonesimulator*]" = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 1.1.1;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 c++17";
+				PRODUCT_BUNDLE_IDENTIFIER = com.twarge.app.Stairs;
+				PRODUCT_NAME = Stairstep;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/Sources/StairsStepImporter/include";
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		800000000000000000000102 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				"ASSETCATALOG_COMPILER_APPICON_NAME[sdk=iphoneos*]" = AppIcon;
+				"ASSETCATALOG_COMPILER_APPICON_NAME[sdk=iphonesimulator*]" = AppIcon;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CLANG_CXX_LIBRARY = "libc++";
+				CODE_SIGNING_ALLOWED = YES;
+				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = App/Stairs.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 2;
+				DEAD_CODE_STRIPPING = YES;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = 257KW9ZJFP;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_MODULE_VERIFIER = YES;
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = x86_64;
+				GENERATE_INFOPLIST_FILE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/Sources/StairsStepImporter/include",
+					"$(SRCROOT)/Vendor/OpenCascadeStatic/OpenCascadeStairs.xcframework/macos-arm64/Headers",
+				);
+				"HEADER_SEARCH_PATHS[sdk=iphoneos*]" = (
+					"$(inherited)",
+					"$(SRCROOT)/Sources/StairsStepImporter/include",
+					"$(SRCROOT)/Vendor/OpenCascadeStatic/OpenCascadeStairs.xcframework/ios-arm64/Headers",
+				);
+				"HEADER_SEARCH_PATHS[sdk=iphonesimulator*]" = (
+					"$(inherited)",
+					"$(SRCROOT)/Sources/StairsStepImporter/include",
+					"$(SRCROOT)/Vendor/OpenCascadeStatic/OpenCascadeStairs.xcframework/ios-arm64-simulator/Headers",
+				);
+				INFOPLIST_FILE = App/Info.plist;
+				"INFOPLIST_FILE[sdk=iphoneos*]" = App/iOSInfo.plist;
+				"INFOPLIST_FILE[sdk=iphonesimulator*]" = App/iOSInfo.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Stairstep;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				"LD_RUNPATH_SEARCH_PATHS[sdk=iphoneos*]" = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				"LD_RUNPATH_SEARCH_PATHS[sdk=iphonesimulator*]" = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 1.1.1;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 c++17";
+				PRODUCT_BUNDLE_IDENTIFIER = com.twarge.app.Stairs;
+				PRODUCT_NAME = Stairstep;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/Sources/StairsStepImporter/include";
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		800000000000000000000301 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				DEAD_CODE_STRIPPING = YES;
+				DEFINES_MODULE = YES;
+				ENABLE_MODULE_VERIFIER = YES;
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = x86_64;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				MACH_O_TYPE = staticlib;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 c++17";
+				PRODUCT_MODULE_NAME = StairsCore;
+				PRODUCT_NAME = StairsCore;
+				SDKROOT = auto;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/Sources/StairsStepImporter/include";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		800000000000000000000302 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				DEAD_CODE_STRIPPING = YES;
+				DEFINES_MODULE = YES;
+				ENABLE_MODULE_VERIFIER = YES;
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = x86_64;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				MACH_O_TYPE = staticlib;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 c++17";
+				PRODUCT_MODULE_NAME = StairsCore;
+				PRODUCT_NAME = StairsCore;
+				SDKROOT = auto;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/Sources/StairsStepImporter/include";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		800000000000000000000501 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = App/PlugIns/QuickLookExtension.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
+				DEAD_CODE_STRIPPING = YES;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = 257KW9ZJFP;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_MODULE_VERIFIER = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/Sources/StairsStepImporter/include",
+					"$(SRCROOT)/Vendor/OpenCascadeStatic/macos-arm64/include/opencascade",
+				);
+				INFOPLIST_FILE = App/PlugIns/StairsQuickLookPreview.appex/Contents/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Stairstep Quick Look";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/Vendor/OpenCascadeStatic/macos-arm64/lib",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 1.1.1;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 c++17";
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-lTKDESTEP",
+					"-lTKDEIGES",
+					"-lTKDECascade",
+					"-lTKDESTL",
+					"-lTKDEPLY",
+					"-lTKDEOBJ",
+					"-lTKDEGLTF",
+					"-lTKRWMesh",
+					"-lTKXCAF",
+					"-lTKDE",
+					"-lTKXSBase",
+					"-lTKVCAF",
+					"-lTKCAF",
+					"-lTKLCAF",
+					"-lTKCDF",
+					"-lTKBO",
+					"-lTKBool",
+					"-lTKPrim",
+					"-lTKV3d",
+					"-lTKService",
+					"-lTKMesh",
+					"-lTKShHealing",
+					"-lTKHLR",
+					"-lTKTopAlgo",
+					"-lTKGeomAlgo",
+					"-lTKBRep",
+					"-lTKGeomBase",
+					"-lTKG3d",
+					"-lTKG2d",
+					"-lTKMath",
+					"-lTKernel",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.twarge.app.Stairs.QuickLookPreview;
+				PRODUCT_NAME = StairsQuickLookPreview;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = macosx;
+				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/Sources/StairsStepImporter/include";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		800000000000000000000502 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = App/PlugIns/QuickLookExtension.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
+				DEAD_CODE_STRIPPING = YES;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = 257KW9ZJFP;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_MODULE_VERIFIER = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/Sources/StairsStepImporter/include",
+					"$(SRCROOT)/Vendor/OpenCascadeStatic/macos-arm64/include/opencascade",
+				);
+				INFOPLIST_FILE = App/PlugIns/StairsQuickLookPreview.appex/Contents/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Stairstep Quick Look";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/Vendor/OpenCascadeStatic/macos-arm64/lib",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 1.1.1;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 c++17";
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-lTKDESTEP",
+					"-lTKDEIGES",
+					"-lTKDECascade",
+					"-lTKDESTL",
+					"-lTKDEPLY",
+					"-lTKDEOBJ",
+					"-lTKDEGLTF",
+					"-lTKRWMesh",
+					"-lTKXCAF",
+					"-lTKDE",
+					"-lTKXSBase",
+					"-lTKVCAF",
+					"-lTKCAF",
+					"-lTKLCAF",
+					"-lTKCDF",
+					"-lTKBO",
+					"-lTKBool",
+					"-lTKPrim",
+					"-lTKV3d",
+					"-lTKService",
+					"-lTKMesh",
+					"-lTKShHealing",
+					"-lTKHLR",
+					"-lTKTopAlgo",
+					"-lTKGeomAlgo",
+					"-lTKBRep",
+					"-lTKGeomBase",
+					"-lTKG3d",
+					"-lTKG2d",
+					"-lTKMath",
+					"-lTKernel",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.twarge.app.Stairs.QuickLookPreview;
+				PRODUCT_NAME = StairsQuickLookPreview;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = macosx;
+				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/Sources/StairsStepImporter/include";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		800000000000000000000601 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = App/PlugIns/QuickLookExtension.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
+				DEAD_CODE_STRIPPING = YES;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = 257KW9ZJFP;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_MODULE_VERIFIER = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/Sources/StairsStepImporter/include",
+					"$(SRCROOT)/Vendor/OpenCascadeStatic/macos-arm64/include/opencascade",
+				);
+				INFOPLIST_FILE = App/PlugIns/StairsQuickLookThumbnail.appex/Contents/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Stairstep Thumbnail";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/Vendor/OpenCascadeStatic/macos-arm64/lib",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 1.1.1;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 c++17";
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-lTKDESTEP",
+					"-lTKDEIGES",
+					"-lTKDECascade",
+					"-lTKDESTL",
+					"-lTKDEPLY",
+					"-lTKDEOBJ",
+					"-lTKDEGLTF",
+					"-lTKRWMesh",
+					"-lTKXCAF",
+					"-lTKDE",
+					"-lTKXSBase",
+					"-lTKVCAF",
+					"-lTKCAF",
+					"-lTKLCAF",
+					"-lTKCDF",
+					"-lTKBO",
+					"-lTKBool",
+					"-lTKPrim",
+					"-lTKV3d",
+					"-lTKService",
+					"-lTKMesh",
+					"-lTKShHealing",
+					"-lTKHLR",
+					"-lTKTopAlgo",
+					"-lTKGeomAlgo",
+					"-lTKBRep",
+					"-lTKGeomBase",
+					"-lTKG3d",
+					"-lTKG2d",
+					"-lTKMath",
+					"-lTKernel",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.twarge.app.Stairs.QuickLookThumbnail;
+				PRODUCT_NAME = StairsQuickLookThumbnail;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = macosx;
+				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/Sources/StairsStepImporter/include";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		800000000000000000000602 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = App/PlugIns/QuickLookExtension.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
+				DEAD_CODE_STRIPPING = YES;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = 257KW9ZJFP;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_MODULE_VERIFIER = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/Sources/StairsStepImporter/include",
+					"$(SRCROOT)/Vendor/OpenCascadeStatic/macos-arm64/include/opencascade",
+				);
+				INFOPLIST_FILE = App/PlugIns/StairsQuickLookThumbnail.appex/Contents/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Stairstep Thumbnail";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/Vendor/OpenCascadeStatic/macos-arm64/lib",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 1.1.1;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 c++17";
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-lTKDESTEP",
+					"-lTKDEIGES",
+					"-lTKDECascade",
+					"-lTKDESTL",
+					"-lTKDEPLY",
+					"-lTKDEOBJ",
+					"-lTKDEGLTF",
+					"-lTKRWMesh",
+					"-lTKXCAF",
+					"-lTKDE",
+					"-lTKXSBase",
+					"-lTKVCAF",
+					"-lTKCAF",
+					"-lTKLCAF",
+					"-lTKCDF",
+					"-lTKBO",
+					"-lTKBool",
+					"-lTKPrim",
+					"-lTKV3d",
+					"-lTKService",
+					"-lTKMesh",
+					"-lTKShHealing",
+					"-lTKHLR",
+					"-lTKTopAlgo",
+					"-lTKGeomAlgo",
+					"-lTKBRep",
+					"-lTKGeomBase",
+					"-lTKG3d",
+					"-lTKG2d",
+					"-lTKMath",
+					"-lTKernel",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.twarge.app.Stairs.QuickLookThumbnail;
+				PRODUCT_NAME = StairsQuickLookThumbnail;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = macosx;
+				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/Sources/StairsStepImporter/include";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		700000000000000000000000 /* Build configuration list for PBXProject "Stairstep" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				800000000000000000000001 /* Debug */,
+				800000000000000000000002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		700000000000000000000001 /* Build configuration list for PBXNativeTarget "Stairstep" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				800000000000000000000101 /* Debug */,
+				800000000000000000000102 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		700000000000000000000003 /* Build configuration list for PBXNativeTarget "StairsCore" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				800000000000000000000301 /* Debug */,
+				800000000000000000000302 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		700000000000000000000005 /* Build configuration list for PBXNativeTarget "StairsQuickLookPreview" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				800000000000000000000501 /* Debug */,
+				800000000000000000000502 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		700000000000000000000006 /* Build configuration list for PBXNativeTarget "StairsQuickLookThumbnail" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				800000000000000000000601 /* Debug */,
+				800000000000000000000602 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = E00000000000000000000001 /* Project object */;
+}

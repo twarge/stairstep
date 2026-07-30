@@ -1,0 +1,14 @@
+.DS_Store
+.build/
+.swiftpm/
+build/
+dist/
+DerivedData/
+*.xcuserstate
+*.xcresult
+*.dSYM/
+*.app/
+xcuserdata/
+Stairstep.xcodeproj/xcuserdata/
+Vendor/OpenCascade/
+Vendor/OpenCascadeStatic/

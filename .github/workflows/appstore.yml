@@ -1,0 +1,247 @@
+name: App Store
+
+# Archives and uploads the iPadOS and macOS apps to App Store Connect
+# (TestFlight / review). Run it manually from the Actions tab, or push a
+# version tag like v1.2. Mirrors dexef's appstore.yml; the extra steps here
+# build and cache the OpenCascade static libraries that Stairstep links.
+#
+# The macOS App Store build is sandboxed via the app target's
+# CODE_SIGN_ENTITLEMENTS[sdk=macosx*] (App/Stairs.entitlements). The app can
+# also still ship outside the Mac App Store — archive in Xcode and use the
+# Organizer's Developer ID Direct Distribution flow.
+#
+# Required repository secrets (Settings → Secrets and variables → Actions):
+#   ASC_KEY_ID     App Store Connect API key ID
+#   ASC_ISSUER_ID  App Store Connect issuer ID
+#   ASC_KEY_P8     Contents of the AuthKey_<KEYID>.p8 file
+#   BUILD_CERTIFICATE_BASE64  Base64-encoded Apple Development .p12
+#   P12_PASSWORD              Password used when exporting the .p12
+# Create the key at App Store Connect → Users and Access → Integrations →
+# App Store Connect API, with the Admin role (needed for cloud signing).
+#
+# Archive signing reuses the Apple Development identity imported from the p12.
+# Export signing and provisioning remain cloud-managed through the API key.
+# CI sets CFBundleVersion from the workflow run and attempt numbers so every
+# upload, including a retry, has an explicit monotonically increasing build.
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Marketing version to build (defaults to the project's MARKETING_VERSION)"
+        required: false
+        type: string
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: CI prerequisite
+    uses: ./.github/workflows/ci.yml
+
+  upload:
+    name: Upload (${{ matrix.name }})
+    needs: build
+    runs-on: macos-26
+    # Generous only for a cold OpenCascade cache — the first run builds the
+    # static libraries from source. Warm runs archive and upload in well under
+    # an hour.
+    timeout-minutes: 300
+    strategy:
+      fail-fast: false
+      # One platform at a time: parallel legs share the ASC key and race
+      # Apple's provisioning and upload services, which intermittently fails
+      # the slower leg with misleading errors ("Cloud signing permission
+      # error", "Account credentials have expired").
+      max-parallel: 1
+      matrix:
+        include:
+          - name: iPadOS
+            destination: generic/platform=iOS
+            archive: build/Stairstep-iOS.xcarchive
+            asc_platform: IOS
+          - name: macOS
+            destination: generic/platform=macOS
+            archive: build/Stairstep-macOS.xcarchive
+            asc_platform: MAC_OS
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install App Store Connect API key
+        env:
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          mkdir -p ~/private_keys
+          printf '%s' "$ASC_KEY_P8" > ~/private_keys/AuthKey_"$ASC_KEY_ID".p8
+          # Shape checks only — never prints secret values.
+          [ "${#ASC_KEY_ID}" -eq 10 ] || { echo "::error::ASC_KEY_ID length is ${#ASC_KEY_ID}, expected 10"; exit 1; }
+          [ "${#ASC_ISSUER_ID}" -eq 36 ] || { echo "::error::ASC_ISSUER_ID length is ${#ASC_ISSUER_ID}, expected a 36-char UUID"; exit 1; }
+          grep -q "BEGIN PRIVATE KEY" ~/private_keys/AuthKey_"$ASC_KEY_ID".p8 || { echo "::error::ASC_KEY_P8 does not look like a raw .p8 (missing BEGIN PRIVATE KEY — paste the file contents, not base64)"; exit 1; }
+
+      - name: Install reusable Apple Development certificate
+        env:
+          BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
+          P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
+          EXPECTED_TEAM_ID: 257KW9ZJFP
+        run: |
+          [ -n "$BUILD_CERTIFICATE_BASE64" ] || { echo "::error::BUILD_CERTIFICATE_BASE64 is not set"; exit 1; }
+          [ -n "$P12_PASSWORD" ] || { echo "::error::P12_PASSWORD is not set"; exit 1; }
+
+          CERTIFICATE_PATH="$RUNNER_TEMP/apple-development.p12"
+          KEYCHAIN_PATH="$RUNNER_TEMP/app-signing.keychain-db"
+          KEYCHAIN_PASSWORD="$(uuidgen)"
+          printf '%s' "$BUILD_CERTIFICATE_BASE64" | base64 --decode -o "$CERTIFICATE_PATH"
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security import "$CERTIFICATE_PATH" -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k "$KEYCHAIN_PATH"
+          security set-key-partition-list -S apple-tool:,apple: -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security list-keychains -d user -s "$KEYCHAIN_PATH"
+          security find-identity -v -p codesigning "$KEYCHAIN_PATH" |
+            grep -q "Apple Development:" ||
+            { echo "::error::The p12 does not contain an Apple Development identity"; exit 1; }
+          CERTIFICATE_SUBJECT="$(
+            security find-certificate \
+              -a \
+              -c "Apple Development" \
+              -p "$KEYCHAIN_PATH" |
+              openssl x509 -in /dev/stdin -noout -subject
+          )"
+          printf "%s\n" "$CERTIFICATE_SUBJECT" |
+            grep -Eq "OU[[:space:]]*=[[:space:]]*$EXPECTED_TEAM_ID([/,]|$)" ||
+            { echo "::error::The Apple Development certificate belongs to a different team; expected $EXPECTED_TEAM_ID"; exit 1; }
+
+      - name: Determine marketing version
+        id: version
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+        run: |
+          if [[ "$GITHUB_REF_TYPE" == "tag" && "$GITHUB_REF_NAME" == v* ]]; then
+            VERSION="${GITHUB_REF_NAME#v}"
+          elif [[ -n "$INPUT_VERSION" ]]; then
+            VERSION="$INPUT_VERSION"
+          else
+            VERSION=$(sed -n 's/.*MARKETING_VERSION = \([0-9.][0-9.]*\);.*/\1/p' Stairstep.xcodeproj/project.pbxproj | head -1)
+          fi
+          [[ "$VERSION" =~ ^[0-9]+(\.[0-9]+)*$ ]] || { echo "::error::Resolved version '$VERSION' is not a plain version number (tag like v1.2)"; exit 1; }
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Building marketing version $VERSION"
+
+      # Fails fast with a readable message when App Store Connect would reject
+      # the upload because this version's train is already approved and closed.
+      # Runs before the OpenCascade build so a closed train costs seconds, not
+      # a from-source compile.
+      - name: Check the version train is open
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_BUNDLE_ID: com.twarge.app.Stairs
+          ASC_PLATFORM: ${{ matrix.asc_platform }}
+          TARGET_VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          ASC_KEY_PATH=~/private_keys/AuthKey_"$ASC_KEY_ID".p8 \
+            swift scripts/check-appstore-version.swift
+
+      - name: Install build tools
+        run: brew list ninja >/dev/null 2>&1 || brew install ninja
+
+      # The heavyweight OCCT submodule is not checked out: its gitlink SHA is
+      # enough for the cache key, and on a cache miss `make deps-all`
+      # initializes it before building. RapidJSON is initialized always — the
+      # macOS app's "Copy Third-Party Notices" build phase bundles
+      # Vendor/RapidJSON/license.txt, which a warm-cache run would otherwise
+      # be missing. It is a small clone.
+      - name: Initialize RapidJSON submodule (bundled license text)
+        run: git submodule update --init Vendor/RapidJSON
+
+      - name: Resolve vendored revisions
+        id: vendor
+        run: |
+          echo "occt=$(git rev-parse HEAD:Vendor/OCCT)" >> "$GITHUB_OUTPUT"
+          echo "rapidjson=$(git rev-parse HEAD:Vendor/RapidJSON)" >> "$GITHUB_OUTPUT"
+
+      - name: Restore OpenCascade static build
+        id: occt-cache
+        uses: actions/cache/restore@v6
+        with:
+          path: |
+            Vendor/OpenCascadeStatic/macos-arm64
+            Vendor/OpenCascadeStatic/ios-arm64
+            Vendor/OpenCascadeStatic/ios-simulator-arm64
+            Vendor/OpenCascadeStatic/OpenCascadeStairs.xcframework
+          key: occt-appstore-${{ runner.os }}-${{ steps.vendor.outputs.occt }}-${{ steps.vendor.outputs.rapidjson }}-${{ hashFiles('scripts/build-occt.sh', 'scripts/build-occt-ios.sh', 'scripts/build-occt-xcframework.sh') }}
+
+      - name: Build OpenCascade if missing (first run only; cached afterward)
+        run: make deps-all
+
+      - name: Save OpenCascade static build
+        if: steps.occt-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: |
+            Vendor/OpenCascadeStatic/macos-arm64
+            Vendor/OpenCascadeStatic/ios-arm64
+            Vendor/OpenCascadeStatic/ios-simulator-arm64
+            Vendor/OpenCascadeStatic/OpenCascadeStairs.xcframework
+          key: ${{ steps.occt-cache.outputs.cache-primary-key }}
+
+      - name: Write export options
+        run: |
+          cat > build-exportOptions.plist <<'PLIST'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key>
+            <string>app-store-connect</string>
+            <key>destination</key>
+            <string>upload</string>
+            <key>signingStyle</key>
+            <string>automatic</string>
+            <key>uploadSymbols</key>
+            <true/>
+            <key>manageAppVersionAndBuildNumber</key>
+            <false/>
+          </dict>
+          </plist>
+          PLIST
+
+      - name: Archive
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          xcodebuild archive \
+            -project Stairstep.xcodeproj \
+            -scheme Stairstep \
+            -configuration Release \
+            -destination '${{ matrix.destination }}' \
+            -archivePath '${{ matrix.archive }}' \
+            MARKETING_VERSION='${{ steps.version.outputs.version }}' \
+            CURRENT_PROJECT_VERSION='${{ github.run_number }}.${{ github.run_attempt }}' \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath ~/private_keys/AuthKey_"$ASC_KEY_ID".p8 \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID"
+
+      - name: Upload to App Store Connect
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          xcodebuild -exportArchive \
+            -archivePath '${{ matrix.archive }}' \
+            -exportOptionsPlist build-exportOptions.plist \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath ~/private_keys/AuthKey_"$ASC_KEY_ID".p8 \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID"

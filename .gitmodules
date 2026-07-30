@@ -1,0 +1,6 @@
+[submodule "Vendor/OCCT"]
+	path = Vendor/OCCT
+	url = https://github.com/Open-Cascade-SAS/OCCT
+[submodule "Vendor/RapidJSON"]
+	path = Vendor/RapidJSON
+	url = https://github.com/Tencent/rapidjson.git

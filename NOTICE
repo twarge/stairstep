@@ -1,0 +1,11 @@
+Stairstep
+Copyright 2026 Twarge LLC
+
+Licensed under the Apache License, Version 2.0.
+
+This product uses Open CASCADE Technology (OCCT), copyright OPEN CASCADE
+S.A.S., licensed under the GNU Lesser General Public License version 2.1
+with the Open CASCADE exception. It also bundles RapidJSON, copyright THL
+A29 Limited (a Tencent company) and Milo Yip, licensed under the MIT
+License. See the "Third-Party Notices" section of README.md for details
+and the location of those license texts.
