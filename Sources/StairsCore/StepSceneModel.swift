@@ -1,4 +1,5 @@
 import Foundation
+import simd
 import SceneKit
 
 #if canImport(StairsStepImporter)
@@ -440,12 +441,35 @@ private enum OpenCascadeStepMeshImporter {
         // FreeCAD documents are unpacked here rather than in the importer: the
         // container is a zip whose object graph decides which of its many BREP
         // payloads are actually drawn.
-        let freeCADPayloads = format == .fcstd ? try FCStdDocument(data: data).brepPayloads() : []
+        // BREP carries no colour, so each object's display colour comes from the
+        // document's GuiDocument.xml and is attached to its shape on import.
+        var freeCADPayloads = [Data]()
+        var freeCADColors = [Float]()
+        if format == .fcstd {
+            let document = try FCStdDocument(data: data)
+            freeCADPayloads = document.brepPayloads()
+            let colors = FCStdAppearance.shapeColors(in: document.archive)
+            for shape in document.shapes {
+                // FreeCAD's own default when a document says nothing.
+                let color = colors[shape.objectName] ?? SIMD3<Float>(0.8, 0.8, 0.8)
+                freeCADColors.append(contentsOf: [color.x, color.y, color.z])
+            }
+        }
 
         let imported = try withImportProgress(progress) { callback, context -> Bool in
             if format == .fcstd {
                 return withBRepBuffers(freeCADPayloads) { buffers, lengths in
-                    HNModelImportBReps(buffers, lengths, freeCADPayloads.count, &importedMesh, callback, context)
+                    freeCADColors.withUnsafeBufferPointer { colors in
+                        HNModelImportBReps(
+                            buffers,
+                            lengths,
+                            freeCADPayloads.count,
+                            colors.baseAddress,
+                            &importedMesh,
+                            callback,
+                            context
+                        )
+                    }
                 }
             }
 

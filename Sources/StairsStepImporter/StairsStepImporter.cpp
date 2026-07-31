@@ -416,7 +416,12 @@ void processShell(
     }
 }
 
-void processShape(MeshAccumulator &accumulator, const TopoDS_Shape &shape, const gp_Trsf &parentTransform)
+void processShape(
+    MeshAccumulator &accumulator,
+    const TopoDS_Shape &shape,
+    const gp_Trsf &parentTransform,
+    const Quantity_Color *forcedColor = nullptr
+)
 {
     if (shape.IsNull()) {
         return;
@@ -426,9 +431,9 @@ void processShape(MeshAccumulator &accumulator, const TopoDS_Shape &shape, const
         ? combinedTransform(parentTransform, shape.Location())
         : parentTransform;
     Quantity_Color color;
-    Quantity_Color *inheritedColor = nullptr;
+    const Quantity_Color *inheritedColor = forcedColor;
 
-    if (!accumulator.shapeTool.IsNull()) {
+    if (inheritedColor == nullptr && !accumulator.shapeTool.IsNull()) {
         TDF_Label label = accumulator.shapeTool->FindShape(shape, false);
         if (!label.IsNull() && getColor(accumulator, label, color)) {
             inheritedColor = &color;
@@ -440,7 +445,7 @@ void processShape(MeshAccumulator &accumulator, const TopoDS_Shape &shape, const
     case TopAbs_COMPSOLID:
     case TopAbs_SOLID:
         for (TopoDS_Iterator iterator(shape, false, false); iterator.More(); iterator.Next()) {
-            processShape(accumulator, iterator.Value(), transform);
+            processShape(accumulator, iterator.Value(), transform, inheritedColor);
         }
         break;
     case TopAbs_SHELL:
@@ -457,7 +462,8 @@ void processShape(MeshAccumulator &accumulator, const TopoDS_Shape &shape, const
 bool buildMeshFromDocument(
     occ::handle<TDocStd_Document> &document,
     HNStepMesh *mesh,
-    const Message_ProgressRange &meshRange
+    const Message_ProgressRange &meshRange,
+    const std::vector<Quantity_Color> *rootColors = nullptr
 ) {
     MeshAccumulator accumulator;
     accumulator.shapeTool = XCAFDoc_DocumentTool::ShapeTool(document->Main());
@@ -494,7 +500,13 @@ bool buildMeshFromDocument(
     gp_Trsf identity;
     for (int shapeIndex = 1; shapeIndex <= freeShapes.Length(); shapeIndex++) {
         TopoDS_Shape shape = accumulator.shapeTool->GetShape(freeShapes.Value(shapeIndex));
-        processShape(accumulator, shape, identity);
+        // Root shapes come back in the order they were added, so the caller's
+        // per-payload colour lines up by index.
+        const Quantity_Color *rootColor =
+            (rootColors != nullptr && static_cast<size_t>(shapeIndex - 1) < rootColors->size())
+                ? &(*rootColors)[shapeIndex - 1]
+                : nullptr;
+        processShape(accumulator, shape, identity, rootColor);
     }
 
     document->Close();
@@ -525,7 +537,8 @@ bool importDocument(
     HNStepMesh *mesh,
     HNProgressCallback progress,
     void *context,
-    const std::function<bool(occ::handle<TDocStd_Document> &, const Message_ProgressRange &)> &read
+    const std::function<bool(occ::handle<TDocStd_Document> &, const Message_ProgressRange &)> &read,
+    const std::vector<Quantity_Color> *rootColors = nullptr
 ) {
     HNStepMeshFree(mesh);
 
@@ -544,7 +557,7 @@ bool importDocument(
     if (!read(document, root.Next(6.0))) {
         return false;
     }
-    return buildMeshFromDocument(document, mesh, root.Next(4.0));
+    return buildMeshFromDocument(document, mesh, root.Next(4.0), rootColors);
 }
 
 } // namespace
@@ -604,6 +617,7 @@ bool HNModelImportBReps(
     const void *const *buffers,
     const size_t *lengths,
     size_t count,
+    const float *colors,
     HNStepMesh *mesh,
     HNProgressCallback progress,
     void *context
@@ -612,11 +626,21 @@ bool HNModelImportBReps(
         return false;
     }
 
+    std::vector<Quantity_Color> rootColors;
+    if (colors != nullptr) {
+        rootColors.reserve(count);
+        for (size_t index = 0; index < count; index++) {
+            const float *rgb = colors + index * 3;
+            rootColors.emplace_back(rgb[0], rgb[1], rgb[2], Quantity_TOC_RGB);
+        }
+    }
+
     try {
         return importDocument(mesh, progress, context,
             [buffers, lengths, count](occ::handle<TDocStd_Document> &document, const Message_ProgressRange &range) {
                 return readBRepBuffers(buffers, lengths, count, document, range);
-            });
+            },
+            colors != nullptr ? &rootColors : nullptr);
     } catch (const Standard_Failure &) {
         HNStepMeshFree(mesh);
         return false;

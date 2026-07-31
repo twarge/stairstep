@@ -61,7 +61,11 @@ bool HNModelImport(const char *path, int32_t format, HNStepMesh *mesh,
 // container and chosen which shapes to draw. Payloads that fail to parse are
 // skipped; the call succeeds if any shape yielded geometry. progress/context are
 // optional.
+// `colors` is optional: 3 floats (r, g, b in 0...1) per payload, or NULL. BREP
+// carries no colour of its own, so for FreeCAD documents this is where each
+// object's display colour — read from GuiDocument.xml — enters the mesh.
 bool HNModelImportBReps(const void *const *buffers, const size_t *lengths, size_t count,
+                        const float *colors,
                         HNStepMesh *mesh, HNProgressCallback progress, void *context);
 
 void HNStepMeshFree(HNStepMesh *mesh);

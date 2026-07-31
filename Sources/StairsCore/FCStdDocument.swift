@@ -1,4 +1,5 @@
 import Foundation
+import simd
 
 /// Reads the parts of a FreeCAD `.FCStd` document this app needs to draw it.
 ///
@@ -35,7 +36,7 @@ public struct FCStdDocument: Sendable {
         }
     }
 
-    private let archive: ZipArchive
+    let archive: ZipArchive
 
     /// Visible, shape-bearing objects in document order.
     public let shapes: [Shape]
@@ -89,6 +90,76 @@ public struct FCStdDocument: Sendable {
                 return nil
             }
             return try? archive.contents(of: entry)
+        }
+    }
+}
+
+/// Per-object display colour, which lives in `GuiDocument.xml` rather than
+/// `Document.xml` — it is view data, not model data, so the FreeCAD *core* does
+/// not carry it either — BREP has no notion of appearance.
+public enum FCStdAppearance {
+    /// Maps object name to its RGB shape colour.
+    public static func shapeColors(in archive: ZipArchive) -> [String: SIMD3<Float>] {
+        guard let xml = (try? archive.contents(ofEntryNamed: "GuiDocument.xml")) ?? nil else {
+            return [:]
+        }
+        let delegate = ColorDelegate()
+        let parser = XMLParser(data: xml)
+        parser.delegate = delegate
+        parser.parse()
+        return delegate.colors
+    }
+
+    /// FreeCAD packs colour as 0xRRGGBBAA. The alpha byte is left zero on shapes
+    /// — transparency is a separate property — so only RGB is meaningful here.
+    static func unpack(_ packed: UInt32) -> SIMD3<Float> {
+        SIMD3(
+            Float((packed >> 24) & 0xFF) / 255,
+            Float((packed >> 16) & 0xFF) / 255,
+            Float((packed >> 8) & 0xFF) / 255
+        )
+    }
+
+    private final class ColorDelegate: NSObject, XMLParserDelegate {
+        var colors = [String: SIMD3<Float>]()
+        private var currentObject: String?
+        private var currentProperty: String?
+
+        func parser(
+            _ parser: XMLParser,
+            didStartElement elementName: String,
+            namespaceURI: String?,
+            qualifiedName: String?,
+            attributes: [String: String]
+        ) {
+            switch elementName {
+            case "ViewProvider":
+                currentObject = attributes["name"]
+            case "Property":
+                currentProperty = attributes["name"]
+            case "PropertyColor":
+                if currentProperty == "ShapeColor",
+                   let object = currentObject,
+                   let raw = attributes["value"],
+                   let packed = UInt32(raw) {
+                    colors[object] = FCStdAppearance.unpack(packed)
+                }
+            default:
+                break
+            }
+        }
+
+        func parser(
+            _ parser: XMLParser,
+            didEndElement elementName: String,
+            namespaceURI: String?,
+            qualifiedName: String?
+        ) {
+            if elementName == "ViewProvider" {
+                currentObject = nil
+            } else if elementName == "Property" {
+                currentProperty = nil
+            }
         }
     }
 }
