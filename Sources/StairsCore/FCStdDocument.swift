@@ -52,7 +52,21 @@ public struct FCStdDocument: Sendable {
         }
 
         let objects = FCStdManifestParser.parse(documentXML)
-        let withGeometry = objects.filter { $0.shapeFile != nil }
+
+        // A container that has a shape of its own owns its members' geometry: a
+        // PartDesign body's shape *is* the result of the features inside it, and
+        // FreeCAD marks both the body and its tip visible. Drawing both draws the
+        // same solid twice. An App::Part is the other case — it groups objects but
+        // has no shape, so its members are the model and must be kept.
+        let ownedByContainer = Set(
+            objects
+                .filter { $0.shapeFile != nil }
+                .flatMap(\.groupChildren)
+        )
+
+        let withGeometry = objects.filter {
+            $0.shapeFile != nil && !ownedByContainer.contains($0.name)
+        }
         let visible = withGeometry.filter(\.isVisible)
 
         // A document whose objects are all hidden still has geometry worth
@@ -171,6 +185,8 @@ private struct FCStdObject {
     var name: String
     var label: String = ""
     var shapeFile: String?
+    /// Objects this one contains, from its Group property.
+    var groupChildren: [String] = []
     // FreeCAD writes Visibility for objects that have it; those that don't (plain
     // Part::Feature in older files) are treated as visible.
     var isVisible: Bool = true
@@ -219,6 +235,13 @@ private enum FCStdManifestParser {
             case "Part":
                 if currentProperty == "Shape", let file = attributes["file"] {
                     current?.shapeFile = file
+                }
+
+            case "Link":
+                // Only Group links: Tip and BaseFeature are Links too, and they
+                // point at members rather than claiming them.
+                if currentProperty == "Group", let value = attributes["value"], !value.isEmpty {
+                    current?.groupChildren.append(value)
                 }
 
             case "Bool":
