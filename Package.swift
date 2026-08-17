@@ -100,6 +100,14 @@ let package = Package(
                 .enableUpcomingFeature("NonisolatedNonsendingByDefault")
             ]
         ),
+        .testTarget(
+            name: "StairsCoreTests",
+            dependencies: ["StairsCore"],
+            path: "Tests/StairsCoreTests",
+            swiftSettings: [
+                .swiftLanguageMode(.v6)
+            ]
+        ),
         .executableTarget(
             name: "StairsQuickLookPreview",
             dependencies: [

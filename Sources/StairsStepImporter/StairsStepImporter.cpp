@@ -27,13 +27,18 @@
 #include <Standard_Version.hxx>
 #include <TDF_Label.hxx>
 #include <TDocStd_Document.hxx>
+#include <NCollection_IndexedMap.hxx>
+#include <TopExp.hxx>
 #include <TopLoc_Location.hxx>
 #include <TopAbs_Orientation.hxx>
+#include <TopTools_ShapeMapHasher.hxx>
 #include <TopoDS.hxx>
 #include <TopoDS_Compound.hxx>
 #include <TopoDS_Face.hxx>
 #include <TopoDS_Shape.hxx>
 #include <TopoDS_Iterator.hxx>
+#include <gp_Quaternion.hxx>
+#include <gp_Trsf.hxx>
 #include <TCollection_AsciiString.hxx>
 #include <XCAFApp_Application.hxx>
 #include <XCAFDoc_ColorTool.hxx>
@@ -46,8 +51,10 @@
 #include <fstream>
 #include <exception>
 #include <functional>
+#include <map>
 #include <sstream>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace {
@@ -197,53 +204,188 @@ bool readBREP(const char *path, occ::handle<TDocStd_Document> &document, const M
     return readWithProvider<DEBREP_Provider>(path, document, range);
 }
 
-// Reads a set of in-memory BREP payloads into one XCAF document, one root shape
-// per payload. A payload that fails to parse is skipped so a single bad object
-// doesn't lose the whole document; the caller sees success if anything landed.
-bool readBRepBuffers(
-    const void *const *buffers,
-    const size_t *lengths,
+// Defined below; the BREP-instance path reuses the same face emitter as the
+// XCAF-document path.
+void appendFace(
+    MeshAccumulator &accumulator,
+    const TopoDS_Face &face,
+    const Quantity_Color *inheritedColor,
+    const gp_Trsf &parentTransform
+);
+
+// Parses each unique BREP payload once (instances of a link array share their
+// payload pointer) and places one copy per instance. A payload that fails to
+// parse is skipped so a single bad object doesn't lose the whole document.
+std::vector<TopoDS_Shape> readBRepInstances(
+    const HNBRepInstance *instances,
     size_t count,
-    occ::handle<TDocStd_Document> &document,
     const Message_ProgressRange &range
 ) {
-    occ::handle<XCAFDoc_ShapeTool> shapeTool = XCAFDoc_DocumentTool::ShapeTool(document->Main());
-    if (shapeTool.IsNull()) {
-        return false;
-    }
-
     Message_ProgressScope scope(range, nullptr, static_cast<double>(count == 0 ? 1 : count));
-    bool added = false;
+    std::map<std::pair<const void *, size_t>, TopoDS_Shape> parsed;
+    std::vector<TopoDS_Shape> shapes(count);
 
     for (size_t index = 0; index < count; index++) {
         Message_ProgressRange step = scope.Next();
-        if (buffers[index] == nullptr || lengths[index] == 0) {
+        const HNBRepInstance &instance = instances[index];
+        if (instance.bytes == nullptr || instance.length == 0) {
             continue;
         }
 
-        try {
-            BRep_Builder builder;
-            TopoDS_Shape shape;
-            std::istringstream stream(
-                std::string(static_cast<const char *>(buffers[index]), lengths[index]));
-            // The stream overload returns void — a failed parse shows up as a null shape.
-            BRepTools::Read(shape, stream, builder, step);
-            if (shape.IsNull()) {
-                continue;
+        const auto key = std::make_pair(instance.bytes, instance.length);
+        TopoDS_Shape shape;
+        const auto found = parsed.find(key);
+        if (found != parsed.end()) {
+            shape = found->second;
+        } else {
+            try {
+                BRep_Builder builder;
+                std::istringstream stream(
+                    std::string(static_cast<const char *>(instance.bytes), instance.length));
+                // The stream overload returns void — a failed parse shows up as
+                // a null shape.
+                BRepTools::Read(shape, stream, builder, step);
+            } catch (const Standard_Failure &) {
+                shape.Nullify();
+            } catch (const std::exception &) {
+                shape.Nullify();
+            } catch (...) {
+                shape.Nullify();
             }
-
-            shapeTool->AddShape(shape, true);
-            added = true;
-        } catch (const Standard_Failure &) {
-            continue;
-        } catch (const std::exception &) {
-            continue;
-        } catch (...) {
+            // Failures are cached too, so a broken payload is parsed only once.
+            parsed.emplace(key, shape);
+        }
+        if (shape.IsNull()) {
             continue;
         }
+
+        if (instance.hasPlacement) {
+            gp_Trsf transform;
+            transform.SetRotation(gp_Quaternion(
+                instance.quaternion[0],
+                instance.quaternion[1],
+                instance.quaternion[2],
+                instance.quaternion[3]
+            ));
+            transform.SetTranslationPart(gp_Vec(
+                instance.position[0],
+                instance.position[1],
+                instance.position[2]
+            ));
+            // Moved() composes the placement *outside* the stored location.
+            shape = shape.Moved(TopLoc_Location(transform));
+        }
+        shapes[index] = shape;
     }
 
-    return added;
+    return shapes;
+}
+
+// Emits one instance's faces with its colours. Faces are enumerated in
+// TopExp::MapShapes order — the order FreeCAD's own view provider assigns
+// DiffuseColor entries by — so a per-face colour list lines up exactly.
+void appendInstanceFaces(
+    MeshAccumulator &accumulator,
+    const TopoDS_Shape &shape,
+    const float *colors,
+    size_t colorCount
+) {
+    NCollection_IndexedMap<TopoDS_Shape, TopTools_ShapeMapHasher> faceMap;
+    TopExp::MapShapes(shape, TopAbs_FACE, faceMap);
+
+    const gp_Trsf identity;
+    Quantity_Color color;
+    for (int index = 1; index <= faceMap.Extent(); index++) {
+        const TopoDS_Face &face = TopoDS::Face(faceMap.FindKey(index));
+        const Quantity_Color *faceColor = nullptr;
+        if (colors != nullptr && colorCount > 0) {
+            const size_t colorIndex =
+                std::min(colorCount - 1, static_cast<size_t>(index - 1));
+            const float *rgb = colors + colorIndex * 3;
+            color.SetValues(rgb[0], rgb[1], rgb[2], Quantity_TOC_RGB);
+            faceColor = &color;
+        }
+        // The face's location already carries the instance placement (the map
+        // was built from the moved shape), so no parent transform remains.
+        appendFace(accumulator, face, faceColor, identity);
+    }
+}
+
+// The whole BREP-instance import: parse, tessellate every unique payload in one
+// parallel pass (instances share TShapes, so an array meshes its payload once),
+// then emit per instance. No XCAF document — BREP carries no metadata worth
+// routing through one.
+bool importBRepInstances(
+    const HNBRepInstance *instances,
+    size_t count,
+    HNStepMesh *mesh,
+    HNProgressCallback progress,
+    void *context
+) {
+    HNStepMeshFree(mesh);
+
+    occ::handle<CallbackProgress> indicator;
+    Message_ProgressRange rootRange;
+    if (progress != nullptr) {
+        indicator = new CallbackProgress(progress, context);
+        rootRange = indicator->Start();
+    }
+    Message_ProgressScope root(rootRange, nullptr, 10.0);
+
+    std::vector<TopoDS_Shape> shapes = readBRepInstances(instances, count, root.Next(6.0));
+
+    TopoDS_Compound compound;
+    BRep_Builder compoundBuilder;
+    compoundBuilder.MakeCompound(compound);
+    bool hasShape = false;
+    for (const TopoDS_Shape &shape : shapes) {
+        if (!shape.IsNull()) {
+            compoundBuilder.Add(compound, shape);
+            hasShape = true;
+        }
+    }
+    if (!hasShape) {
+        return false;
+    }
+
+    IMeshTools_Parameters parameters;
+    parameters.Deflection = userPrecision;
+    parameters.Angle = userAngle;
+    parameters.Relative = Standard_False;
+    parameters.InParallel = Standard_True;
+    // Constructing the mesher performs the (parallel) tessellation.
+    BRepMesh_IncrementalMesh mesher(compound, parameters, root.Next(4.0));
+
+    MeshAccumulator accumulator;
+    for (size_t index = 0; index < count; index++) {
+        if (shapes[index].IsNull()) {
+            continue;
+        }
+        appendInstanceFaces(
+            accumulator,
+            shapes[index],
+            instances[index].colors,
+            instances[index].colorCount
+        );
+    }
+
+    if (accumulator.vertices.empty() || accumulator.indices.empty()) {
+        return false;
+    }
+
+    mesh->vertexCount = static_cast<uint32_t>(accumulator.vertices.size());
+    mesh->indexCount = static_cast<uint32_t>(accumulator.indices.size());
+    mesh->vertices = static_cast<HNStepVertex *>(std::malloc(sizeof(HNStepVertex) * mesh->vertexCount));
+    mesh->indices = static_cast<uint32_t *>(std::malloc(sizeof(uint32_t) * mesh->indexCount));
+
+    if (mesh->vertices == nullptr || mesh->indices == nullptr) {
+        HNStepMeshFree(mesh);
+        return false;
+    }
+
+    std::memcpy(mesh->vertices, accumulator.vertices.data(), sizeof(HNStepVertex) * mesh->vertexCount);
+    std::memcpy(mesh->indices, accumulator.indices.data(), sizeof(uint32_t) * mesh->indexCount);
+    return true;
 }
 
 bool readDocument(
@@ -462,8 +604,7 @@ void processShape(
 bool buildMeshFromDocument(
     occ::handle<TDocStd_Document> &document,
     HNStepMesh *mesh,
-    const Message_ProgressRange &meshRange,
-    const std::vector<Quantity_Color> *rootColors = nullptr
+    const Message_ProgressRange &meshRange
 ) {
     MeshAccumulator accumulator;
     accumulator.shapeTool = XCAFDoc_DocumentTool::ShapeTool(document->Main());
@@ -500,13 +641,7 @@ bool buildMeshFromDocument(
     gp_Trsf identity;
     for (int shapeIndex = 1; shapeIndex <= freeShapes.Length(); shapeIndex++) {
         TopoDS_Shape shape = accumulator.shapeTool->GetShape(freeShapes.Value(shapeIndex));
-        // Root shapes come back in the order they were added, so the caller's
-        // per-payload colour lines up by index.
-        const Quantity_Color *rootColor =
-            (rootColors != nullptr && static_cast<size_t>(shapeIndex - 1) < rootColors->size())
-                ? &(*rootColors)[shapeIndex - 1]
-                : nullptr;
-        processShape(accumulator, shape, identity, rootColor);
+        processShape(accumulator, shape, identity);
     }
 
     document->Close();
@@ -537,8 +672,7 @@ bool importDocument(
     HNStepMesh *mesh,
     HNProgressCallback progress,
     void *context,
-    const std::function<bool(occ::handle<TDocStd_Document> &, const Message_ProgressRange &)> &read,
-    const std::vector<Quantity_Color> *rootColors = nullptr
+    const std::function<bool(occ::handle<TDocStd_Document> &, const Message_ProgressRange &)> &read
 ) {
     HNStepMeshFree(mesh);
 
@@ -557,7 +691,7 @@ bool importDocument(
     if (!read(document, root.Next(6.0))) {
         return false;
     }
-    return buildMeshFromDocument(document, mesh, root.Next(4.0), rootColors);
+    return buildMeshFromDocument(document, mesh, root.Next(4.0));
 }
 
 } // namespace
@@ -614,33 +748,18 @@ bool HNModelImport(const char *path, int32_t format, HNStepMesh *mesh, HNProgres
 }
 
 bool HNModelImportBReps(
-    const void *const *buffers,
-    const size_t *lengths,
+    const HNBRepInstance *instances,
     size_t count,
-    const float *colors,
     HNStepMesh *mesh,
     HNProgressCallback progress,
     void *context
 ) {
-    if (buffers == nullptr || lengths == nullptr || count == 0 || mesh == nullptr) {
+    if (instances == nullptr || count == 0 || mesh == nullptr) {
         return false;
     }
 
-    std::vector<Quantity_Color> rootColors;
-    if (colors != nullptr) {
-        rootColors.reserve(count);
-        for (size_t index = 0; index < count; index++) {
-            const float *rgb = colors + index * 3;
-            rootColors.emplace_back(rgb[0], rgb[1], rgb[2], Quantity_TOC_RGB);
-        }
-    }
-
     try {
-        return importDocument(mesh, progress, context,
-            [buffers, lengths, count](occ::handle<TDocStd_Document> &document, const Message_ProgressRange &range) {
-                return readBRepBuffers(buffers, lengths, count, document, range);
-            },
-            colors != nullptr ? &rootColors : nullptr);
+        return importBRepInstances(instances, count, mesh, progress, context);
     } catch (const Standard_Failure &) {
         HNStepMeshFree(mesh);
         return false;

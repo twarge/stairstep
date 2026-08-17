@@ -214,10 +214,10 @@ public struct ZipArchive: Sendable {
     }
 }
 
-private extension Data {
+extension Data {
     /// Reads a little-endian fixed-width integer at `offset`, or nil if the range
     /// runs past the end. Assembled byte by byte: the offsets in a zip directory
-    /// have no alignment guarantees.
+    /// (and FreeCAD's binary property files) have no alignment guarantees.
     func readLE<T: FixedWidthInteger>(at offset: Int) -> T? {
         let size = MemoryLayout<T>.size
         guard offset >= 0, offset + size <= count else {

@@ -55,17 +55,36 @@ bool HNModelImportData(const void *data, size_t length, HNStepMesh *mesh,
 bool HNModelImport(const char *path, int32_t format, HNStepMesh *mesh,
                    HNProgressCallback progress, void *context);
 
-// Imports several in-memory OpenCascade BREP payloads as one model, tessellating
-// them together in a single parallel pass. Used for container formats that store
-// one BREP per object (FreeCAD .FCStd), where the caller has already unpacked the
-// container and chosen which shapes to draw. Payloads that fail to parse are
-// skipped; the call succeeds if any shape yielded geometry. progress/context are
-// optional.
-// `colors` is optional: 3 floats (r, g, b in 0...1) per payload, or NULL. BREP
-// carries no colour of its own, so for FreeCAD documents this is where each
-// object's display colour — read from GuiDocument.xml — enters the mesh.
-bool HNModelImportBReps(const void *const *buffers, const size_t *lengths, size_t count,
-                        const float *colors,
+// One drawn occurrence of an in-memory OpenCascade BREP payload. Several
+// instances may share one payload (a FreeCAD link array draws the same shape
+// many times); the importer parses each unique payload once, keyed by pointer.
+typedef struct HNBRepInstance {
+    // ASCII "CASCADE Topology" BREP payload.
+    const void *bytes;
+    size_t length;
+    // Optional rigid transform applied on top of the payload's own location:
+    // a unit quaternion (x, y, z, w) followed by a translation, FreeCAD's
+    // placement convention. hasPlacement false draws the payload as stored.
+    bool hasPlacement;
+    double quaternion[4];
+    double position[3];
+    // Optional colours, 3 floats (r, g, b in 0...1) each. BREP carries no colour
+    // of its own, so for FreeCAD documents this is where display colours — read
+    // from GuiDocument.xml — enter the mesh. colorCount 0 falls back to the
+    // importer default; 1 colours the whole shape; N colours faces one by one in
+    // TopExp::MapShapes(TopAbs_FACE) order (FreeCAD's DiffuseColor order), any
+    // extra faces keeping the last colour.
+    const float *colors;
+    size_t colorCount;
+} HNBRepInstance;
+
+// Imports BREP instances as one model, tessellating unique payloads together in
+// a single parallel pass. Used for container formats that store one BREP per
+// object (FreeCAD .FCStd), where the caller has already unpacked the container
+// and chosen which shapes to draw where. Instances whose payload fails to parse
+// are skipped; the call succeeds if any shape yielded geometry. progress/context
+// are optional.
+bool HNModelImportBReps(const HNBRepInstance *instances, size_t count,
                         HNStepMesh *mesh, HNProgressCallback progress, void *context);
 
 void HNStepMeshFree(HNStepMesh *mesh);

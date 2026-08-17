@@ -245,6 +245,10 @@ public enum StepImportError: LocalizedError, Sendable {
     case noGeometry
     case openCascadeFailed
     case temporaryFileFailed
+    /// The document was understood but none of its drawable content is
+    /// reachable — a FreeCAD assembly whose parts all live in other files, say.
+    /// Carries the reader's own explanation so the user learns *why*.
+    case unreachableContent(String)
 
     public var errorDescription: String? {
         switch self {
@@ -256,6 +260,8 @@ public enum StepImportError: LocalizedError, Sendable {
             "OpenCascade could not tessellate this STEP file."
         case .temporaryFileFailed:
             "A temporary STEP file could not be prepared for import."
+        case .unreachableContent(let reason):
+            reason
         }
     }
 }
@@ -278,11 +284,17 @@ public enum StepMeshImporter {
         do {
             return try OpenCascadeStepMeshImporter.load(data: data, fileName: fileName, format: format, progress: progress)
         } catch {
-            return try fallbackModel(
-                data: data,
-                fileName: fileName,
-                warning: "OpenCascade could not import this \(format.rawValue) file; showing parsed extents when possible."
-            )
+            do {
+                return try fallbackModel(
+                    data: data,
+                    fileName: fileName,
+                    warning: "OpenCascade could not import this \(format.rawValue) file; showing parsed extents when possible."
+                )
+            } catch _ {
+                // The import error says what actually went wrong; the fallback
+                // failing to find extents adds nothing.
+                throw error
+            }
         }
         #else
         return try fallbackModel(
@@ -384,43 +396,77 @@ private func withImportProgress<T>(
     return try body(importProgressTrampoline, context)
 }
 
-/// Presents `payloads` as the parallel pointer/length arrays the multi-BREP
-/// importer takes. The payloads are flattened into one allocation so every
-/// pointer stays valid for the whole call without nesting an access scope per
-/// payload — a document can hold hundreds of shapes.
-private func withBRepBuffers(
-    _ payloads: [Data],
-    _ body: (UnsafePointer<UnsafeRawPointer?>, UnsafePointer<Int>) -> Bool
+/// One FreeCAD instance readied for the importer: which unique payload it
+/// draws, where, and in which colours (a range into a shared colour array).
+private struct FCStdImportInstance {
+    var payloadIndex: Int
+    var placement: FCStdPlacement?
+    /// Offset into the shared colour storage, in floats.
+    var colorOffset: Int
+    /// Number of RGB triples: 1 for a whole-shape colour, N for per-face.
+    var colorCount: Int
+}
+
+/// Presents FreeCAD instances as the `HNBRepInstance` array the importer takes.
+/// Unique payloads are flattened into one allocation so every pointer stays
+/// valid for the whole call without nesting an access scope per payload — a
+/// document can hold hundreds of shapes, and a link array points many instances
+/// at one payload.
+private func withFCStdInstances(
+    payloads: [Data],
+    descriptors: [FCStdImportInstance],
+    colorStorage: [Float],
+    _ body: (UnsafePointer<HNBRepInstance>, Int) -> Bool
 ) -> Bool {
-    guard !payloads.isEmpty else {
+    guard !descriptors.isEmpty else {
         return false
     }
 
     var storage = [UInt8]()
     storage.reserveCapacity(payloads.reduce(0) { $0 + $1.count })
     var offsets = [Int]()
-    var lengths = [Int]()
     offsets.reserveCapacity(payloads.count)
-    lengths.reserveCapacity(payloads.count)
-
     for payload in payloads {
         offsets.append(storage.count)
-        lengths.append(payload.count)
         storage.append(contentsOf: payload)
     }
 
-    return storage.withUnsafeBytes { raw -> Bool in
-        guard let base = raw.baseAddress else {
+    return storage.withUnsafeBytes { rawPayloads -> Bool in
+        guard let payloadBase = rawPayloads.baseAddress else {
             return false
         }
-        let pointers: [UnsafeRawPointer?] = offsets.map { base.advanced(by: $0) }
-        return pointers.withUnsafeBufferPointer { pointerBuffer in
-            lengths.withUnsafeBufferPointer { lengthBuffer in
-                guard let pointerBase = pointerBuffer.baseAddress,
-                      let lengthBase = lengthBuffer.baseAddress else {
+        return colorStorage.withUnsafeBufferPointer { colors -> Bool in
+            var instances = [HNBRepInstance]()
+            instances.reserveCapacity(descriptors.count)
+            for descriptor in descriptors {
+                var instance = HNBRepInstance()
+                instance.bytes = payloadBase.advanced(by: offsets[descriptor.payloadIndex])
+                instance.length = payloads[descriptor.payloadIndex].count
+                if let placement = descriptor.placement {
+                    instance.hasPlacement = true
+                    instance.quaternion = (
+                        placement.rotation.x,
+                        placement.rotation.y,
+                        placement.rotation.z,
+                        placement.rotation.w
+                    )
+                    instance.position = (
+                        placement.position.x,
+                        placement.position.y,
+                        placement.position.z
+                    )
+                }
+                if descriptor.colorCount > 0, let colorBase = colors.baseAddress {
+                    instance.colors = colorBase.advanced(by: descriptor.colorOffset)
+                    instance.colorCount = descriptor.colorCount
+                }
+                instances.append(instance)
+            }
+            return instances.withUnsafeBufferPointer { buffer in
+                guard let base = buffer.baseAddress else {
                     return false
                 }
-                return body(pointerBase, lengthBase)
+                return body(base, buffer.count)
             }
         }
     }
@@ -440,36 +486,79 @@ private enum OpenCascadeStepMeshImporter {
 
         // FreeCAD documents are unpacked here rather than in the importer: the
         // container is a zip whose object graph decides which of its many BREP
-        // payloads are actually drawn.
+        // payloads are drawn where — App::Part groups and App::Link instances
+        // place (and repeat) stored shapes, so one payload can back several
+        // instances, each with its own transform.
         // BREP carries no colour, so each object's display colour comes from the
-        // document's GuiDocument.xml and is attached to its shape on import.
+        // document's GuiDocument.xml — a whole-shape colour, or per-face
+        // DiffuseColor entries — and is attached to its instances on import.
         var freeCADPayloads = [Data]()
+        var freeCADDescriptors = [FCStdImportInstance]()
         var freeCADColors = [Float]()
+        var freeCADWarnings = [String]()
         if format == .fcstd {
             let document = try FCStdDocument(data: data)
-            freeCADPayloads = document.brepPayloads()
-            let colors = FCStdAppearance.shapeColors(in: document.archive)
-            for shape in document.shapes {
-                // FreeCAD's own default when a document says nothing.
-                let color = colors[shape.objectName] ?? SIMD3<Float>(0.8, 0.8, 0.8)
-                freeCADColors.append(contentsOf: [color.x, color.y, color.z])
+            freeCADWarnings = document.warnings
+            if document.hiddenShapeCount > 0 {
+                freeCADWarnings.append("\(document.hiddenShapeCount) hidden shape(s) were not drawn.")
+            }
+
+            let appearance = FCStdAppearance.colors(in: document.archive)
+            let payloadsByEntry = document.payloadsByEntry()
+            var payloadIndexByEntry = [String: Int]()
+            var colorRangeByObject = [String: (offset: Int, count: Int)]()
+
+            for instance in document.instances {
+                // Entries that failed to inflate have no payload; their
+                // instances are dropped rather than failing the document.
+                guard let payload = payloadsByEntry[instance.entryName] else {
+                    continue
+                }
+                let payloadIndex: Int
+                if let existing = payloadIndexByEntry[instance.entryName] {
+                    payloadIndex = existing
+                } else {
+                    payloadIndex = freeCADPayloads.count
+                    payloadIndexByEntry[instance.entryName] = payloadIndex
+                    freeCADPayloads.append(payload)
+                }
+
+                let colorRange: (offset: Int, count: Int)
+                if let existing = colorRangeByObject[instance.objectName] {
+                    colorRange = existing
+                } else {
+                    let offset = freeCADColors.count
+                    if let faces = appearance.faces[instance.objectName] {
+                        for color in faces {
+                            freeCADColors.append(contentsOf: [color.x, color.y, color.z])
+                        }
+                        colorRange = (offset, faces.count)
+                    } else {
+                        // FreeCAD's own default when a document says nothing.
+                        let color = appearance.shape[instance.objectName] ?? SIMD3<Float>(0.8, 0.8, 0.8)
+                        freeCADColors.append(contentsOf: [color.x, color.y, color.z])
+                        colorRange = (offset, 1)
+                    }
+                    colorRangeByObject[instance.objectName] = colorRange
+                }
+
+                freeCADDescriptors.append(FCStdImportInstance(
+                    payloadIndex: payloadIndex,
+                    placement: instance.placement,
+                    colorOffset: colorRange.offset,
+                    colorCount: colorRange.count
+                ))
             }
         }
 
         let imported = try withImportProgress(progress) { callback, context -> Bool in
             if format == .fcstd {
-                return withBRepBuffers(freeCADPayloads) { buffers, lengths in
-                    freeCADColors.withUnsafeBufferPointer { colors in
-                        HNModelImportBReps(
-                            buffers,
-                            lengths,
-                            freeCADPayloads.count,
-                            colors.baseAddress,
-                            &importedMesh,
-                            callback,
-                            context
-                        )
-                    }
+                return withFCStdInstances(
+                    payloads: freeCADPayloads,
+                    descriptors: freeCADDescriptors,
+                    colorStorage: freeCADColors
+                ) { instances, count in
+                    HNModelImportBReps(instances, count, &importedMesh, callback, context)
                 }
             }
 
@@ -488,6 +577,15 @@ private enum OpenCascadeStepMeshImporter {
         }
 
         guard imported else {
+            // A FreeCAD document can parse fine yet yield nothing drawable —
+            // an assembly whose parts all live in other files. The reader's
+            // warnings say so; surface them instead of a generic failure.
+            if format == .fcstd, !freeCADWarnings.isEmpty {
+                throw StepImportError.unreachableContent(
+                    "None of this FreeCAD document's geometry could be drawn. "
+                    + freeCADWarnings.joined(separator: " ")
+                )
+            }
             throw StepImportError.openCascadeFailed
         }
 
@@ -536,7 +634,7 @@ private enum OpenCascadeStepMeshImporter {
             ),
             bounds: bounds,
             importMode: .openCascadeMesh,
-            warnings: []
+            warnings: freeCADWarnings
         )
     }
 
