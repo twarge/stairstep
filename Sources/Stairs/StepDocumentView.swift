@@ -523,6 +523,46 @@ struct StepDocumentView: View {
                 .help("Fit model")
 
                 #if !os(macOS)
+                // iOS has no menu bar to carry Copy/Export As, so sharing lives
+                // in the toolbar: the original file verbatim, or a mesh
+                // conversion in any export format. Menu entries are plain text —
+                // the surrounding `.labelStyle(.iconOnly)` would strip a Label's
+                // title here.
+                Menu {
+                    ShareLink(
+                        item: SharedModelFile(filename: displayName, content: .original(document.data)),
+                        preview: SharePreview(displayName)
+                    ) {
+                        Text("Share Model")
+                    }
+                    .disabled(document.data.isEmpty)
+
+                    // Mirrors the Export As menu: one entry per format, disabled
+                    // without tessellated geometry — ShareLink needs its payload
+                    // up front, so the placeholder buttons hold the shape.
+                    if let mesh = loadedModel?.mesh {
+                        ForEach(StepExportFormat.allCases) { format in
+                            ShareLink(
+                                item: SharedModelFile(
+                                    filename: "\(exportBaseName).\(format.fileExtension)",
+                                    content: .export(mesh: mesh, format: format, modelName: exportBaseName)
+                                ),
+                                preview: SharePreview("\(exportBaseName).\(format.fileExtension)")
+                            ) {
+                                Text("Share as \(format.displayName)")
+                            }
+                        }
+                    } else {
+                        ForEach(StepExportFormat.allCases) { format in
+                            Button("Share as \(format.displayName)") {}
+                                .disabled(true)
+                        }
+                    }
+                } label: {
+                    Label("Share", systemImage: "square.and.arrow.up")
+                }
+                .help("Share model")
+
                 // iOS has no Settings scene, so preferences open from the toolbar.
                 Button {
                     isSettingsPresented = true

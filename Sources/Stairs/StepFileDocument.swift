@@ -6,6 +6,7 @@ import UniformTypeIdentifiers
 #if os(macOS)
 import AppKit
 #else
+import CoreTransferable
 import UIKit
 #endif
 
@@ -82,6 +83,85 @@ nonisolated struct ExportedModelDocument: FileDocument {
         FileWrapper(regularFileWithContents: data)
     }
 }
+
+#if os(iOS)
+/// One shareable rendition of the open model — the original document bytes or a
+/// mesh conversion — typed for `ShareLink`. Encoding is deferred: constructing
+/// this is a value copy, and the bytes are only produced when a share target
+/// actually asks.
+nonisolated struct SharedModelFile: Transferable {
+    enum Content {
+        /// The document's own bytes, shared verbatim under its own format.
+        case original(Data)
+        /// A mesh conversion, encoded on demand.
+        case export(mesh: StepTriangleMesh, format: StepExportFormat, modelName: String)
+    }
+
+    var filename: String
+    var content: Content
+
+    /// The type this file transfers as, and the key the representations below
+    /// are selected by — so a `.glb` original is never announced as STEP.
+    var contentType: UTType {
+        switch content {
+        case .original:
+            return StairsClipboard.contentType(forFileNamed: filename)
+        case .export(_, let format, _):
+            return UTType(format.contentTypeIdentifier) ?? .data
+        }
+    }
+
+    func data() throws -> Data {
+        switch content {
+        case .original(let data):
+            return data
+        case .export(let mesh, let format, let modelName):
+            return try StepMeshExporter.data(for: mesh, format: format, modelName: modelName)
+        }
+    }
+
+    /// One representation per model type this app declares, each offered only
+    /// for the files that carry it — every readable type, because an original
+    /// is shared under its own format, whatever was opened.
+    ///
+    /// Built through the helper below with every closure's types spelled out,
+    /// which keeps the result builder tractable for the type checker.
+    static var transferRepresentation: some TransferRepresentation {
+        fileRepresentation(.stepModel)
+        fileRepresentation(.igesModel)
+        fileRepresentation(.brepModel)
+        fileRepresentation(.stlModel)
+        fileRepresentation(.plyModel)
+        fileRepresentation(.objModel)
+        fileRepresentation(.glbModel)
+        fileRepresentation(.freeCADModel)
+    }
+
+    private static func fileRepresentation(
+        _ type: UTType
+    ) -> some TransferRepresentation<SharedModelFile> {
+        let representation = FileRepresentation<SharedModelFile>(exportedContentType: type) {
+            (file: SharedModelFile) async throws -> SentTransferredFile in
+            SentTransferredFile(try file.writeTemporary(), allowAccessingOriginalFile: false)
+        }
+        return representation.exportingCondition { (file: SharedModelFile) -> Bool in
+            file.contentType == type
+        }
+    }
+
+    /// File transfers hand over a URL, so the bytes go through a uniquely-named
+    /// temporary directory — which is also what lets the receiver see the real
+    /// filename.
+    private func writeTemporary() throws -> URL {
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("share-\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        let url = directory.appendingPathComponent(filename)
+        try data().write(to: url)
+        return url
+    }
+}
+#endif
 
 /// Builds a document out of whatever was pasted, so an empty document can be
 /// filled from the clipboard instead of only from a file on disk.
