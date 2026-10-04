@@ -55,13 +55,16 @@ struct StepDocumentView: View {
     // stacked screens inside one NavigationSplitView. The split view provides a
     // single back control — model view → inspector → document browser — as long
     // as the detail carries no title on compact (the document name titles the
-    // inspector instead; a titled detail spawns a second navigation bar).
+    // inspector instead; a titled detail spawns a second navigation bar). It
+    // starts on the detail, so iPhone opens on the model, not the inspector.
     @State private var preferredCompactColumn = NavigationSplitViewColumn.detail
     // Per-document-scene restoration of the camera. SceneStorage is persisted by
     // the system and handed back when a document scene is restored on relaunch,
     // so the view returns to exactly where it was left. Stored as JSON because
     // SceneStorage only holds property-list primitives.
     @SceneStorage("cameraState") private var cameraStateStore = ""
+    // Side-by-side columns open on the model alone; the system sidebar toggle
+    // brings in the inspector, and the last choice is kept.
     @AppStorage("sidebarVisibility") private var sidebarVisibility = "detailOnly"
     @AppStorage("showsAxes") private var showsAxes = false
     @AppStorage("showsGrid") private var showsGrid = true
@@ -473,6 +476,7 @@ struct StepDocumentView: View {
 
     @ToolbarContentBuilder
     private var documentToolbar: some ToolbarContent {
+        #if os(macOS)
         // One toolbar item, so everything shares a single capsule. Previously the
         // picker sat in its own group and drew a second capsule — which stayed on
         // screen, empty, whenever the picker was hidden to hold its place.
@@ -482,102 +486,153 @@ struct StepDocumentView: View {
                 // added and removed freely now: toolbar items are trailing-aligned,
                 // so this capsule grows leftward and the buttons keep their places.
                 if section.isEnabled {
-                    Picker("Section Axis", selection: $section.axis) {
-                        ForEach(StepSectionAxis.allCases, id: \.self) { axis in
-                            Text(axis.displayName).tag(axis)
-                        }
-                    }
-                    .pickerStyle(.segmented)
-                    .labelsHidden()
-                    // Fixed, or the segmented picker stretches to fill the toolbar.
-                    .frame(width: 108)
-                    .help("Cross section axis")
-                    .disabled(!canSection)
+                    sectionAxisPicker
+                        // Fixed, or the segmented picker stretches to fill the toolbar.
+                        .frame(width: 108)
                 }
 
-                Button {
-                    toggleSection()
-                } label: {
-                    Label(
-                        "Cross Section",
-                        systemImage: section.isEnabled ? "square.split.2x1.fill" : "square.split.2x1"
-                    )
-                }
-                .help("Cross section")
-                .disabled(!canSection)
-
-                Button {
-                    toggleMeasure()
-                } label: {
-                    Label("Measure", systemImage: measurement.isActive ? "ruler.fill" : "ruler")
-                }
-                .help("Measure distance")
-                .disabled(!canMeasure)
-
-                Button {
-                    cameraState = nil
-                    resetID = UUID()
-                } label: {
-                    Label("Fit", systemImage: "viewfinder")
-                }
-                .help("Fit model")
-
-                #if !os(macOS)
-                // iOS has no menu bar to carry Copy/Export As, so sharing lives
-                // in the toolbar: the original file verbatim, or a mesh
-                // conversion in any export format. Menu entries are plain text —
-                // the surrounding `.labelStyle(.iconOnly)` would strip a Label's
-                // title here.
-                Menu {
-                    ShareLink(
-                        item: SharedModelFile(filename: displayName, content: .original(document.data)),
-                        preview: SharePreview(displayName)
-                    ) {
-                        Text("Share Model")
-                    }
-                    .disabled(document.data.isEmpty)
-
-                    // Mirrors the Export As menu: one entry per format, disabled
-                    // without tessellated geometry — ShareLink needs its payload
-                    // up front, so the placeholder buttons hold the shape.
-                    if let mesh = loadedModel?.mesh {
-                        ForEach(StepExportFormat.allCases) { format in
-                            ShareLink(
-                                item: SharedModelFile(
-                                    filename: "\(exportBaseName).\(format.fileExtension)",
-                                    content: .export(mesh: mesh, format: format, modelName: exportBaseName)
-                                ),
-                                preview: SharePreview("\(exportBaseName).\(format.fileExtension)")
-                            ) {
-                                Text("Share as \(format.displayName)")
-                            }
-                        }
-                    } else {
-                        ForEach(StepExportFormat.allCases) { format in
-                            Button("Share as \(format.displayName)") {}
-                                .disabled(true)
-                        }
-                    }
-                } label: {
-                    Label("Share", systemImage: "square.and.arrow.up")
-                }
-                .help("Share model")
-
-                // iOS has no Settings scene, so preferences open from the toolbar.
-                Button {
-                    isSettingsPresented = true
-                } label: {
-                    Label("Settings", systemImage: "gearshape")
-                }
-                .help("Settings")
-                .keyboardShortcut(",", modifiers: .command)
-                #endif
+                crossSectionButton
+                measureButton
+                fitButton
             }
             // Inside a plain HStack a Label would draw its title as well; toolbar
             // items are icon-only.
             .labelStyle(.iconOnly)
         }
+        #else
+        // One item per control. Each button is a plain image item the system can
+        // lay out on either bar axis — iPhone Duo folds them into its vertical
+        // bar, which drops custom-view items such as one HStack holding them all.
+        // The adjacent trailing items still share a single capsule.
+        //
+        // The cut axis appears only while a section is active. A segmented control
+        // is horizontal-only, so a vertical bar leaves it out; the inspector's
+        // Plane picker sets the axis there.
+        if section.isEnabled {
+            ToolbarItem(placement: .principal) {
+                sectionAxisPicker
+            }
+        }
+
+        ToolbarItem(placement: .topBarTrailing) {
+            crossSectionButton
+        }
+
+        ToolbarItem(placement: .topBarTrailing) {
+            measureButton
+        }
+
+        ToolbarItem(placement: .topBarTrailing) {
+            fitButton
+        }
+
+        ToolbarItem(placement: .topBarTrailing) {
+            shareMenu
+        }
+
+        ToolbarItem(placement: .topBarTrailing) {
+            settingsButton
+        }
+        #endif
     }
+
+    private var sectionAxisPicker: some View {
+        Picker("Section Axis", selection: $section.axis) {
+            ForEach(StepSectionAxis.allCases, id: \.self) { axis in
+                Text(axis.displayName).tag(axis)
+            }
+        }
+        .pickerStyle(.segmented)
+        .labelsHidden()
+        .help("Cross section axis")
+        .disabled(!canSection)
+    }
+
+    private var crossSectionButton: some View {
+        Button {
+            toggleSection()
+        } label: {
+            Label(
+                "Cross Section",
+                systemImage: section.isEnabled ? "square.split.2x1.fill" : "square.split.2x1"
+            )
+        }
+        .help("Cross section")
+        .disabled(!canSection)
+    }
+
+    private var measureButton: some View {
+        Button {
+            toggleMeasure()
+        } label: {
+            Label("Measure", systemImage: measurement.isActive ? "ruler.fill" : "ruler")
+        }
+        .help("Measure distance")
+        .disabled(!canMeasure)
+    }
+
+    private var fitButton: some View {
+        Button {
+            cameraState = nil
+            resetID = UUID()
+        } label: {
+            Label("Fit", systemImage: "viewfinder")
+        }
+        .help("Fit model")
+    }
+
+    #if !os(macOS)
+    // iOS has no menu bar to carry Copy/Export As, so sharing lives in the
+    // toolbar: the original file verbatim, or a mesh conversion in any export
+    // format.
+    private var shareMenu: some View {
+        Menu {
+            ShareLink(
+                item: SharedModelFile(filename: displayName, content: .original(document.data)),
+                preview: SharePreview(displayName)
+            ) {
+                Text("Share Model")
+            }
+            .disabled(document.data.isEmpty)
+
+            // Mirrors the Export As menu: one entry per format, disabled without
+            // tessellated geometry — ShareLink needs its payload up front, so the
+            // placeholder buttons hold the shape.
+            if let mesh = loadedModel?.mesh {
+                ForEach(StepExportFormat.allCases) { format in
+                    ShareLink(
+                        item: SharedModelFile(
+                            filename: "\(exportBaseName).\(format.fileExtension)",
+                            content: .export(mesh: mesh, format: format, modelName: exportBaseName)
+                        ),
+                        preview: SharePreview("\(exportBaseName).\(format.fileExtension)")
+                    ) {
+                        Text("Share as \(format.displayName)")
+                    }
+                }
+            } else {
+                ForEach(StepExportFormat.allCases) { format in
+                    Button("Share as \(format.displayName)") {}
+                        .disabled(true)
+                }
+            }
+        } label: {
+            Label("Share", systemImage: "square.and.arrow.up")
+        }
+        .help("Share model")
+    }
+
+    // iOS has no Settings scene, so preferences open from the toolbar.
+    private var settingsButton: some View {
+        Button {
+            isSettingsPresented = true
+        } label: {
+            Label("Settings", systemImage: "gearshape")
+        }
+        .help("Settings")
+        .keyboardShortcut(",", modifiers: .command)
+    }
+    #endif
 
     private func toggleMeasure() {
         // Deliberately does not reveal the inspector: measuring happens directly on
@@ -669,6 +724,8 @@ struct StepDocumentView: View {
                 .onContinuousHover { phase in
                     handleDistractionFreeHover(phase)
                 }
+                // Not a sidebar control: it only restores the hidden bar, which is
+                // what carries the system sidebar toggle and back button.
                 .overlay(alignment: .top) {
                     distractionFreeRevealTarget
                 }
