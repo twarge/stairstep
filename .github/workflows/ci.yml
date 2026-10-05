@@ -1,19 +1,20 @@
 name: CI
 
-# Compile-checks the macOS and iOS apps on every push to main and on PRs.
+# Compile-checks the macOS and iOS apps and runs the package tests on every
+# push to main and on PRs.
 #
 # Notes / assumptions:
-#   * The package builds with Swift 6.2+; the app targets are built against the
-#     macOS/iOS 26 SDKs (deployment target 26.0), so the runner needs an Xcode
-#     that ships those SDKs. We select the newest Xcode on the image — if the
-#     app build later fails for a missing-SDK reason, bump `runs-on` to a newer
-#     image (e.g. macos-26) once it carries that Xcode. The "Toolchain" step
-#     below prints exactly what the runner provides. The runner must be Apple
-#     Silicon — the OpenCascade build and the iOS simulator slice are arm64-only.
-#   * OpenCascade is not vendored as a binary (it's ~0.5 GB and git-ignored), so
-#     the first run builds it from the OCCT/RapidJSON submodules. That step is
-#     slow (tens of minutes) but its output is cached on the OCCT submodule SHA,
-#     so subsequent runs skip it entirely.
+#   * Same runner image as appstore.yml and the sibling app repos (macos-26,
+#     default Xcode), so the OpenCascade tree CI caches was built by the same
+#     toolchain that links it at release time. The runner must be Apple
+#     Silicon — the OpenCascade build and the iOS simulator slice are
+#     arm64-only.
+#   * OpenCascade is not vendored as a binary (it's ~0.5 GB and git-ignored).
+#     The occt-static action restores it from the Actions cache and builds it
+#     from the OCCT/RapidJSON submodules only on a miss (an hour or more).
+#     The key is shared with appstore.yml, so a push to main also warms the
+#     tree a release tag will restore; occt-cache.yml keeps it from expiring
+#     between pushes.
 #   * This is a build-only check (no code signing, no iOS-device build, no App
 #     Store export — those need signing credentials and live in appstore.yml).
 
@@ -32,63 +33,26 @@ permissions:
 
 jobs:
   build:
-    name: Build (macOS + iOS Simulator)
-    runs-on: macos-15
+    name: Build & test (macOS + iOS Simulator)
+    runs-on: macos-26
+    # Generous only for a cold OpenCascade cache; warm runs take minutes.
     timeout-minutes: 180
     steps:
-      - name: Checkout (with submodules)
-        uses: actions/checkout@v7
-        with:
-          submodules: recursive
-
-      - name: Select Xcode
-        uses: maxim-lobanov/setup-xcode@v1
-        with:
-          xcode-version: latest
+      - uses: actions/checkout@v7
 
       - name: Toolchain
         run: |
           xcodebuild -version
           swift --version
 
-      - name: Install build tools
-        run: brew list ninja >/dev/null 2>&1 || brew install ninja
-
-      - name: Resolve vendored revisions
-        id: vendor
-        run: |
-          echo "occt=$(git -C Vendor/OCCT rev-parse HEAD)" >> "$GITHUB_OUTPUT"
-          echo "rapidjson=$(git -C Vendor/RapidJSON rev-parse HEAD)" >> "$GITHUB_OUTPUT"
-
-      - name: Restore OpenCascade static build
-        id: occt-cache
-        uses: actions/cache/restore@v6
-        with:
-          path: |
-            Vendor/OpenCascadeStatic/macos-arm64
-            Vendor/OpenCascadeStatic/ios-simulator-arm64
-            Vendor/OpenCascadeStatic/OpenCascadeStairs.xcframework
-          key: occt-${{ runner.os }}-${{ steps.vendor.outputs.occt }}-${{ steps.vendor.outputs.rapidjson }}-${{ hashFiles('scripts/build-occt.sh', 'scripts/build-occt-ios.sh', 'scripts/build-occt-xcframework.sh') }}
-
-      - name: Build OpenCascade (first run only; cached afterward)
-        if: steps.occt-cache.outputs.cache-hit != 'true'
-        run: |
-          scripts/build-occt.sh
-          OCCT_IOS_PLATFORM=simulator scripts/build-occt-ios.sh
-          OCCT_IOS_DEVICE_INSTALL_DIR="" scripts/build-occt-xcframework.sh
-
-      - name: Save OpenCascade static build
-        if: steps.occt-cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v6
-        with:
-          path: |
-            Vendor/OpenCascadeStatic/macos-arm64
-            Vendor/OpenCascadeStatic/ios-simulator-arm64
-            Vendor/OpenCascadeStatic/OpenCascadeStairs.xcframework
-          key: ${{ steps.occt-cache.outputs.cache-primary-key }}
+      - name: OpenCascade static build
+        uses: ./.github/actions/occt-static
 
       - name: Swift package build
         run: swift build
+
+      - name: Swift package tests
+        run: swift test
 
       - name: Build macOS app
         run: |

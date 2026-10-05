@@ -1,0 +1,79 @@
+name: OpenCascade static libraries
+description: >-
+  Restores the OpenCascade static builds (macOS, iOS device, iOS simulator,
+  and the XCFramework) from the Actions cache, builds them from the
+  Vendor/OCCT submodule on a miss, and saves them immediately.
+
+# Shared by ci.yml, appstore.yml, and occt-cache.yml so the cache KEY is
+# written once. Workflows that build the same tree under keys that drift apart
+# miss forever without ever failing — before this existed, appstore.yml used
+# its own key that nothing on main ever saved, so every release tag compiled
+# OpenCascade from source.
+#
+# Callers check out without submodules: the gitlink SHAs are enough for the
+# key, and `make deps-all` initializes the heavyweight OCCT submodule only on
+# a miss.
+
+outputs:
+  cache-hit:
+    description: true when the tree was restored rather than built
+    value: ${{ steps.restore.outputs.cache-hit }}
+
+runs:
+  using: composite
+  steps:
+    # Initialized always, hit or miss — the macOS app's "Copy Third-Party
+    # Notices" build phase bundles Vendor/RapidJSON/license.txt, which a
+    # warm-cache run would otherwise be missing. It is a small clone.
+    - name: Initialize RapidJSON submodule (bundled license text)
+      shell: bash
+      run: git submodule update --init Vendor/RapidJSON
+
+    # Vendor/OpenCascadeStatic is gitignored and built from the Vendor/OCCT
+    # submodule. One key covers every slice, so whichever workflow builds the
+    # tree first warms it for the others.
+    - name: Compute OCCT cache key
+      id: key
+      shell: bash
+      run: |
+        occt="$(git rev-parse HEAD:Vendor/OCCT)"
+        rapidjson="$(git rev-parse HEAD:Vendor/RapidJSON)"
+        scripts="${{ hashFiles('scripts/build-occt.sh', 'scripts/build-occt-ios.sh', 'scripts/build-occt-xcframework.sh') }}"
+        echo "value=occt-macos-ios-${occt}-${rapidjson}-${scripts}" >> "$GITHUB_OUTPUT"
+
+    - name: Restore OpenCascade static build
+      id: restore
+      uses: actions/cache/restore@v6
+      with:
+        path: |
+          Vendor/OpenCascadeStatic/macos-arm64
+          Vendor/OpenCascadeStatic/ios-arm64
+          Vendor/OpenCascadeStatic/ios-simulator-arm64
+          Vendor/OpenCascadeStatic/OpenCascadeStairs.xcframework
+        key: ${{ steps.key.outputs.value }}
+
+    - name: Build OpenCascade from source (cache miss)
+      id: build
+      if: steps.restore.outputs.cache-hit != 'true'
+      shell: bash
+      run: |
+        brew list ninja >/dev/null 2>&1 || brew install ninja
+        make deps-all
+
+    # Saved here rather than by the combined actions/cache action, whose post
+    # step is skipped when the job fails — a failing app build, test, or
+    # upload later in the job would otherwise throw the OpenCascade build away
+    # and leave the next run cold.
+    #
+    # Gated on the build's own outcome, never always(): caching a half-built
+    # tree would poison every later run, which is worse than rebuilding.
+    - name: Save OpenCascade static build
+      if: steps.build.outcome == 'success'
+      uses: actions/cache/save@v6
+      with:
+        path: |
+          Vendor/OpenCascadeStatic/macos-arm64
+          Vendor/OpenCascadeStatic/ios-arm64
+          Vendor/OpenCascadeStatic/ios-simulator-arm64
+          Vendor/OpenCascadeStatic/OpenCascadeStairs.xcframework
+        key: ${{ steps.key.outputs.value }}

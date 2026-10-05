@@ -1,0 +1,40 @@
+name: OCCT cache
+
+# Keeps the OpenCascade cache warm on the default branch.
+#
+# A cache is scoped to the ref that saved it, and appstore.yml runs only on
+# tags — so an entry saved by v1.2.4 is invisible to v1.3.0. Entries saved on
+# the default branch are the exception: any ref can restore those. ci.yml
+# restores that entry on every push to main, and saves a fresh one whenever it
+# misses, under the key the release reads (see .github/actions/occt-static).
+#
+# What CI can't do is outlive a quiet spell: GitHub evicts an entry nobody
+# has restored for seven days, and releases are further apart than that. This
+# restores the entry twice a week, which counts as an access, and rebuilds it
+# on main if it has already gone. Run it by hand (Actions -> OCCT cache -> Run
+# workflow) to warm the cache ahead of a release.
+
+on:
+  schedule:
+    # Mondays and Thursdays — never more than four days between accesses.
+    - cron: "17 6 * * 1,4"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: occt-cache
+  cancel-in-progress: false
+
+jobs:
+  warm:
+    name: Warm the OCCT cache
+    # Same image as ci.yml and appstore.yml — this tree is what they link.
+    runs-on: macos-26
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Restore, build if missing, and save
+        uses: ./.github/actions/occt-static

@@ -2,8 +2,9 @@ name: App Store
 
 # Archives and uploads the iPadOS and macOS apps to App Store Connect
 # (TestFlight / review). Run it manually from the Actions tab, or push a
-# version tag like v1.2. Mirrors dexef's appstore.yml; the extra steps here
-# build and cache the OpenCascade static libraries that Stairstep links.
+# version tag like v1.2. Mirrors dexef's appstore.yml; the extra step here
+# restores the OpenCascade static libraries that Stairstep links (see
+# .github/actions/occt-static and occt-cache.yml).
 #
 # The macOS App Store build is sandboxed via the app target's
 # CODE_SIGN_ENTITLEMENTS[sdk=macosx*] (App/Stairs.entitlements). The app can
@@ -50,9 +51,8 @@ jobs:
     name: Upload (${{ matrix.name }})
     needs: build
     runs-on: macos-26
-    # Generous only for a cold OpenCascade cache — the first run builds the
-    # static libraries from source. Warm runs archive and upload in well under
-    # an hour.
+    # Generous only for a cold OpenCascade cache, which the CI prerequisite
+    # normally fills first. Warm runs archive and upload in well under an hour.
     timeout-minutes: 300
     strategy:
       fail-fast: false
@@ -151,48 +151,10 @@ jobs:
           ASC_KEY_PATH=~/private_keys/AuthKey_"$ASC_KEY_ID".p8 \
             swift scripts/check-appstore-version.swift
 
-      - name: Install build tools
-        run: brew list ninja >/dev/null 2>&1 || brew install ninja
-
-      # The heavyweight OCCT submodule is not checked out: its gitlink SHA is
-      # enough for the cache key, and on a cache miss `make deps-all`
-      # initializes it before building. RapidJSON is initialized always — the
-      # macOS app's "Copy Third-Party Notices" build phase bundles
-      # Vendor/RapidJSON/license.txt, which a warm-cache run would otherwise
-      # be missing. It is a small clone.
-      - name: Initialize RapidJSON submodule (bundled license text)
-        run: git submodule update --init Vendor/RapidJSON
-
-      - name: Resolve vendored revisions
-        id: vendor
-        run: |
-          echo "occt=$(git rev-parse HEAD:Vendor/OCCT)" >> "$GITHUB_OUTPUT"
-          echo "rapidjson=$(git rev-parse HEAD:Vendor/RapidJSON)" >> "$GITHUB_OUTPUT"
-
-      - name: Restore OpenCascade static build
-        id: occt-cache
-        uses: actions/cache/restore@v6
-        with:
-          path: |
-            Vendor/OpenCascadeStatic/macos-arm64
-            Vendor/OpenCascadeStatic/ios-arm64
-            Vendor/OpenCascadeStatic/ios-simulator-arm64
-            Vendor/OpenCascadeStatic/OpenCascadeStairs.xcframework
-          key: occt-appstore-${{ runner.os }}-${{ steps.vendor.outputs.occt }}-${{ steps.vendor.outputs.rapidjson }}-${{ hashFiles('scripts/build-occt.sh', 'scripts/build-occt-ios.sh', 'scripts/build-occt-xcframework.sh') }}
-
-      - name: Build OpenCascade if missing (first run only; cached afterward)
-        run: make deps-all
-
-      - name: Save OpenCascade static build
-        if: steps.occt-cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v6
-        with:
-          path: |
-            Vendor/OpenCascadeStatic/macos-arm64
-            Vendor/OpenCascadeStatic/ios-arm64
-            Vendor/OpenCascadeStatic/ios-simulator-arm64
-            Vendor/OpenCascadeStatic/OpenCascadeStairs.xcframework
-          key: ${{ steps.occt-cache.outputs.cache-primary-key }}
+      # Restores the tree this run's CI prerequisite (or any push to main)
+      # saved under the same key, so this builds only if both missed.
+      - name: OpenCascade static build
+        uses: ./.github/actions/occt-static
 
       - name: Write export options
         run: |
