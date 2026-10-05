@@ -4,9 +4,9 @@ name: CI
 # push to main and on PRs.
 #
 # Notes / assumptions:
-#   * Same runner image as appstore.yml and the sibling app repos (macos-26,
-#     default Xcode), so the OpenCascade tree CI caches was built by the same
-#     toolchain that links it at release time. The runner must be Apple
+#   * Same runner image and Xcode as appstore.yml and the sibling app repos
+#     (xcode-27, Xcode 27.1), so the OpenCascade tree CI caches was built by
+#     the same toolchain that links it at release time. The runner must be Apple
 #     Silicon — the OpenCascade build and the iOS simulator slice are
 #     arm64-only.
 #   * OpenCascade is not vendored as a binary (it's ~0.5 GB and git-ignored).
@@ -31,10 +31,15 @@ concurrency:
 permissions:
   contents: read
 
+# The xcode-27 image defaults to Xcode 27.0. Build with 27.1, the Xcode the
+# app is developed on, so CI compiles against the same SDKs.
+env:
+  DEVELOPER_DIR: /Applications/Xcode_27.1.app/Contents/Developer
+
 jobs:
   build:
     name: Build & test (macOS + iOS Simulator)
-    runs-on: macos-26
+    runs-on: xcode-27
     # Generous only for a cold OpenCascade cache; warm runs take minutes.
     timeout-minutes: 180
     steps:
