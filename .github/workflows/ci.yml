@@ -50,6 +50,11 @@ jobs:
           xcodebuild -version
           swift --version
 
+      # The xcode-27 image ships Xcode without its Metal Toolchain
+      # (actions/runner-images#14548); RealityStepShaders.metal needs it.
+      - name: Install the Metal Toolchain
+        run: xcodebuild -downloadComponent MetalToolchain
+
       - name: OpenCascade static build
         uses: ./.github/actions/occt-static
 

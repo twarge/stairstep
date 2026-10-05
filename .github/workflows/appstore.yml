@@ -156,6 +156,11 @@ jobs:
           ASC_KEY_PATH=~/private_keys/AuthKey_"$ASC_KEY_ID".p8 \
             swift scripts/check-appstore-version.swift
 
+      # The xcode-27 image ships Xcode without its Metal Toolchain
+      # (actions/runner-images#14548); RealityStepShaders.metal needs it.
+      - name: Install the Metal Toolchain
+        run: xcodebuild -downloadComponent MetalToolchain
+
       # Restores the tree this run's CI prerequisite (or any push to main)
       # saved under the same key, so this builds only if both missed.
       - name: OpenCascade static build
