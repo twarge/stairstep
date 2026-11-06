@@ -765,6 +765,20 @@ struct StepDocumentView: View {
                 .ignoresSafeArea(.container, edges: [.top, .bottom])
                 #endif
         }
+        // The scene hands its scale bar up to be drawn here, outside the canvas's
+        // ignored safe area, so it is placed from the safe area and kept clear of
+        // the rounded corner — the display's on iPhone, the window's on Mac and
+        // iPad.
+        .overlayPreferenceValue(StepLengthScaleBarPreference.self) { scaleBar in
+            if let scaleBar {
+                Color.clear
+                    .cornerAdaptiveOverlay(alignment: .bottomLeading, padding: 14) {
+                        scaleBar
+                            .padding(.bottom, 4)
+                    }
+                    .allowsHitTesting(false)
+            }
+        }
     }
 
     // Shows a determinate bar once the importer reports progress (large STEP
@@ -923,6 +937,98 @@ private extension View {
     }
 }
 
+// MARK: - Corner adaptation
+
+/// The axis a view anchored in a container's corner moves along to clear it.
+enum CornerAdaptationAxis: Sendable {
+    case horizontal
+    case vertical
+}
+
+extension View {
+    /// Overlays `content` at `alignment`, inset by `padding` and moved along
+    /// `axis` far enough to clear the container's rounded corner there — the
+    /// display's corner on iPhone, the window's on Mac and iPad — and system UI
+    /// in that corner, such as window controls.
+    func cornerAdaptiveOverlay<Content: View>(
+        alignment: Alignment,
+        padding: CGFloat = 16,
+        axis: CornerAdaptationAxis = .horizontal,
+        @ViewBuilder content: () -> Content
+    ) -> some View {
+        overlay {
+            CornerAdaptiveAnchor(alignment: alignment, padding: padding, axis: axis, content: content())
+        }
+    }
+}
+
+private struct CornerAdaptiveAnchor<Content: View>: View {
+    let alignment: Alignment
+    let padding: CGFloat
+    let axis: CornerAdaptationAxis
+    let content: Content
+
+    var body: some View {
+        GeometryReader { proxy in
+            content
+                .padding(insets(in: proxy))
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: alignment)
+        }
+    }
+
+    private func insets(in proxy: GeometryProxy) -> EdgeInsets {
+        var insets = EdgeInsets(top: padding, leading: padding, bottom: padding, trailing: padding)
+        // The availability guard is for the SwiftPM dev build (its floor is
+        // macOS 15); there the content is inset by `padding` only.
+        guard #available(iOS 26, macOS 26, *) else { return insets }
+        let corners = proxy.containerCornerInsets
+        let safe = proxy.safeAreaInsets
+        let top = alignment.vertical == .top
+        let bottom = alignment.vertical == .bottom
+        guard top || bottom else { return insets }
+        let leading = alignment.horizontal != .trailing
+        let trailing = alignment.horizontal != .leading
+
+        func adapt(_ region: CGSize, vertical: CGFloat, horizontal: CGFloat, _ edge: Edge) {
+            var region = region
+            #if os(macOS)
+            // AppKit measures the window controls from the window's edge even
+            // where the toolbar's safe area already holds them, so take off
+            // what the safe area covers; elsewhere the size is measured from
+            // the safe area already.
+            region.width -= horizontal
+            region.height -= vertical
+            #endif
+            // Placed `padding` in from the safe area, the content's corner
+            // clears the region unless it falls inside it on both axes.
+            guard region.width > padding, region.height > padding else { return }
+            switch edge {
+            case .leading: insets.leading = max(insets.leading, region.width)
+            case .trailing: insets.trailing = max(insets.trailing, region.width)
+            case .top: insets.top = max(insets.top, region.height)
+            case .bottom: insets.bottom = max(insets.bottom, region.height)
+            }
+        }
+
+        let verticalEdge: Edge = top ? .top : .bottom
+        let verticalSafe = top ? safe.top : safe.bottom
+        if leading {
+            adapt(top ? corners.topLeading : corners.bottomLeading, vertical: verticalSafe, horizontal: safe.leading,
+                  axis == .horizontal ? .leading : verticalEdge)
+        }
+        if trailing {
+            adapt(top ? corners.topTrailing : corners.bottomTrailing, vertical: verticalSafe, horizontal: safe.trailing,
+                  axis == .horizontal ? .trailing : verticalEdge)
+        }
+        // Centred content stays centred: what one side needs, both get.
+        if alignment.horizontal == .center {
+            insets.leading = max(insets.leading, insets.trailing)
+            insets.trailing = insets.leading
+        }
+        return insets
+    }
+}
+
 private struct PreparedStepScene {
     var id = UUID()
     var presentation: StepScenePresentation
@@ -983,7 +1089,7 @@ private struct LoadedStepSceneView: View {
 
     var body: some View {
         GeometryReader { proxy in
-            ZStack(alignment: .bottomLeading) {
+            ZStack {
                 isDarkMode ? Color.black : Color.white
 
                 if useRealityKitRenderer, let mesh = model.mesh {
@@ -1005,22 +1111,22 @@ private struct LoadedStepSceneView: View {
                         cameraState: $cameraState
                     )
                     .id(model.id)
-
                     // The RealityKit host publishes its first state right after
                     // framing, so the fallback transform is never consulted.
-                    if cameraState?.isValid == true {
-                        StepLengthScaleBar(
-                            size: proxy.size,
-                            safeAreaInsets: safeAreaInsets,
-                            cameraState: cameraState,
-                            projection: projection,
-                            fallbackCameraTransform: SCNMatrix4Identity,
-                            fieldOfView: 48,
-                            orthographicScale: cameraState?.orthographicScale,
-                            isDarkMode: isDarkMode
-                        )
-                        .allowsHitTesting(false)
-                    }
+                    .preference(
+                        key: StepLengthScaleBarPreference.self,
+                        value: cameraState?.isValid == true
+                            ? StepLengthScaleBar(
+                                size: proxy.size,
+                                cameraState: cameraState,
+                                projection: projection,
+                                fallbackCameraTransform: SCNMatrix4Identity,
+                                fieldOfView: 48,
+                                orthographicScale: cameraState?.orthographicScale,
+                                isDarkMode: isDarkMode
+                            )
+                            : nil
+                    )
                 } else if let preparedScene {
                     sceneContent(preparedScene, proxy: proxy)
                 } else {
@@ -1065,18 +1171,18 @@ private struct LoadedStepSceneView: View {
         .offset(x: viewport.offset.width, y: viewport.offset.height)
         .frame(width: proxy.size.width, height: proxy.size.height)
         .clipped()
-
-        StepLengthScaleBar(
-            size: viewport.size,
-            safeAreaInsets: safeAreaInsets,
-            cameraState: cameraState,
-            projection: projection,
-            fallbackCameraTransform: prepared.cameraNode.transform,
-            fieldOfView: prepared.cameraNode.camera?.fieldOfView ?? 48,
-            orthographicScale: cameraState?.orthographicScale ?? prepared.cameraNode.camera?.orthographicScale,
-            isDarkMode: isDarkMode
+        .preference(
+            key: StepLengthScaleBarPreference.self,
+            value: StepLengthScaleBar(
+                size: viewport.size,
+                cameraState: cameraState,
+                projection: projection,
+                fallbackCameraTransform: prepared.cameraNode.transform,
+                fieldOfView: prepared.cameraNode.camera?.fieldOfView ?? 48,
+                orthographicScale: cameraState?.orthographicScale ?? prepared.cameraNode.camera?.orthographicScale,
+                isDarkMode: isDarkMode
+            )
         )
-        .allowsHitTesting(false)
     }
 
     private var sceneBuildID: LoadedStepSceneIdentity {
@@ -1116,7 +1222,6 @@ private struct LoadedStepSceneView: View {
 
 private struct StepLengthScaleBar: View {
     var size: CGSize
-    var safeAreaInsets: EdgeInsets
     var cameraState: StepSceneCameraState?
     var projection: StepCameraProjection
     var fallbackCameraTransform: SCNMatrix4
@@ -1149,8 +1254,6 @@ private struct StepLengthScaleBar: View {
                 }
                 .frame(width: metrics.screenLength, height: 10)
             }
-            .padding(.leading, safeAreaInsets.leading + 14)
-            .padding(.bottom, safeAreaInsets.bottom + 18)
         }
     }
 
@@ -1269,6 +1372,16 @@ private struct StepLengthScaleBar: View {
             return SIMD3<Double>(0, 0, -1)
         }
         return vector / vectorLength
+    }
+}
+
+/// Carries the scale bar from the scene, inside the canvas's ignored safe area,
+/// out to the model detail, which places it in the corner.
+private nonisolated struct StepLengthScaleBarPreference: PreferenceKey {
+    static var defaultValue: StepLengthScaleBar? { nil }
+
+    static func reduce(value: inout StepLengthScaleBar?, nextValue: () -> StepLengthScaleBar?) {
+        value = value ?? nextValue()
     }
 }
 
