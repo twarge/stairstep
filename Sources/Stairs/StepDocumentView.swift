@@ -48,8 +48,11 @@ struct StepDocumentView: View {
     // Precomputed snap geometry for the measurement tool, built off the main actor
     // when a model loads.
     @State private var snapModel: StepSnapModel?
-    #if os(iOS)
+    #if os(iOS) || os(visionOS)
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    #endif
+    #if os(visionOS)
+    @Environment(\.openWindow) private var openWindow
     #endif
     // On compact width (iPhone) the inspector and the model view are separate
     // stacked screens inside one NavigationSplitView. The split view provides a
@@ -526,6 +529,12 @@ struct StepDocumentView: View {
             fitButton
         }
 
+        #if os(visionOS)
+        ToolbarItem(placement: .topBarTrailing) {
+            volumeButton
+        }
+        #endif
+
         ToolbarItem(placement: .topBarTrailing) {
             shareMenu
         }
@@ -570,6 +579,20 @@ struct StepDocumentView: View {
         .help("Measure distance")
         .disabled(!canMeasure)
     }
+
+    #if os(visionOS)
+    private var volumeButton: some View {
+        Button {
+            guard let model = loadedModel, let mesh = model.mesh else { return }
+            StepModelVolumeStore.register(mesh, for: model.id)
+            openWindow(id: StepModelVolumeStore.windowID, value: model.id)
+        } label: {
+            Label("View in Volume", systemImage: "cube.transparent")
+        }
+        .help("Show the model in a volume")
+        .disabled(loadedModel?.mesh == nil)
+    }
+    #endif
 
     private var fitButton: some View {
         Button {
@@ -709,7 +732,7 @@ struct StepDocumentView: View {
                 .background(windowBackground)
                 #endif
                 .navigationTitle(detailNavigationTitle)
-                #if os(iOS)
+                #if os(iOS) || os(visionOS)
                 .navigationBarTitleDisplayMode(.inline)
                 #endif
                 .toolbar {
@@ -744,7 +767,7 @@ struct StepDocumentView: View {
     // second back button). On iPad/macOS the columns are visible together and
     // the detail keeps the document name.
     private var detailNavigationTitle: String {
-        #if os(iOS)
+        #if os(iOS) || os(visionOS)
         if horizontalSizeClass == .compact {
             return ""
         }
@@ -1092,6 +1115,9 @@ private struct LoadedStepSceneView: View {
             ZStack {
                 isDarkMode ? Color.black : Color.white
 
+                #if os(visionOS)
+                sceneKitContent(proxy: proxy)
+                #else
                 if useRealityKitRenderer, let mesh = model.mesh {
                     RealityStepCanvas(
                         mesh: mesh,
@@ -1127,17 +1153,25 @@ private struct LoadedStepSceneView: View {
                             )
                             : nil
                     )
-                } else if let preparedScene {
-                    sceneContent(preparedScene, proxy: proxy)
                 } else {
-                    ProgressView()
-                        .controlSize(.large)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    sceneKitContent(proxy: proxy)
                 }
+                #endif
             }
         }
         .task(id: sceneBuildID) {
             await buildScene()
+        }
+    }
+
+    @ViewBuilder
+    private func sceneKitContent(proxy: GeometryProxy) -> some View {
+        if let preparedScene {
+            sceneContent(preparedScene, proxy: proxy)
+        } else {
+            ProgressView()
+                .controlSize(.large)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
     }
 
@@ -1396,7 +1430,7 @@ private struct StepInspectorView: View {
     @Binding var measurement: StepMeasurement
     var onShowModelView: () -> Void
 
-    #if os(iOS)
+    #if os(iOS) || os(visionOS)
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     #endif
     #if !os(macOS)
@@ -1405,7 +1439,7 @@ private struct StepInspectorView: View {
 
     var body: some View {
         List {
-            #if os(iOS)
+            #if os(iOS) || os(visionOS)
             if horizontalSizeClass == .compact {
                 Section {
                     Button(action: onShowModelView) {
@@ -1457,7 +1491,7 @@ private struct StepInspectorView: View {
         // On iPhone (compact) the inspector is its own screen, so it carries the
         // document name as its title; the model view shows none.
         .navigationTitle(navigationTitleText)
-        #if os(iOS)
+        #if os(iOS) || os(visionOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
         .listStyle(.sidebar)
@@ -1489,7 +1523,7 @@ private struct StepInspectorView: View {
                         .labelsHidden()
                         .multilineTextAlignment(.trailing)
                         .frame(width: 76)
-                        #if os(iOS)
+                        #if os(iOS) || os(visionOS)
                         .keyboardType(.numbersAndPunctuation)
                         #endif
                         Text("mm")
@@ -1535,7 +1569,7 @@ private struct StepInspectorView: View {
 
     private func togglePointPicking() {
         isPickingSectionPoint.toggle()
-        #if os(iOS)
+        #if os(iOS) || os(visionOS)
         // The model canvas is a separate screen on iPhone; surface it to tap on.
         if isPickingSectionPoint, horizontalSizeClass == .compact {
             onShowModelView()
@@ -1613,7 +1647,7 @@ private struct StepInspectorView: View {
     }
 
     private var navigationTitleText: String {
-        #if os(iOS)
+        #if os(iOS) || os(visionOS)
         if horizontalSizeClass == .compact {
             return displayName
         }

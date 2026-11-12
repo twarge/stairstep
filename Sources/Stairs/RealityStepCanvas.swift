@@ -9,6 +9,50 @@ import AppKit
 import UIKit
 #endif
 
+/// Turns a tessellated model into RealityKit mesh descriptors, one per STEP
+/// colour (or a single neutral one), recentred on the model's bounds. Shared by
+/// the RealityKit canvas and the visionOS volume.
+enum RealityStepMeshBuilder {
+    static func parts(
+        for mesh: StepTriangleMesh,
+        usesOriginalColors: Bool
+    ) -> (descriptors: [MeshDescriptor], colors: [PlatformColor]) {
+        var indicesByMaterial = [StepMaterialKey: [UInt32]]()
+        let neutralKey = StepMaterialKey(red: 178, green: 186, blue: 194)
+        for triangleStart in stride(from: 0, to: mesh.indices.count, by: 3) {
+            let firstIndex = Int(mesh.indices[triangleStart])
+            guard firstIndex >= 0 && firstIndex < mesh.vertices.count else { continue }
+            let key = usesOriginalColors
+                ? StepMaterialKey(color: mesh.vertices[firstIndex].color)
+                : neutralKey
+            indicesByMaterial[key, default: []].append(mesh.indices[triangleStart])
+            indicesByMaterial[key, default: []].append(mesh.indices[triangleStart + 1])
+            indicesByMaterial[key, default: []].append(mesh.indices[triangleStart + 2])
+        }
+
+        let center = mesh.bounds.center
+        let positions = mesh.vertices.map { $0.position - center }
+        let normals = mesh.vertices.map(\.normal)
+
+        var descriptors = [MeshDescriptor]()
+        var colors = [PlatformColor]()
+        for key in indicesByMaterial.keys.sorted() {
+            guard let indices = indicesByMaterial[key], !indices.isEmpty else { continue }
+            var descriptor = MeshDescriptor(name: "STEP mesh \(descriptors.count)")
+            descriptor.positions = MeshBuffer(positions)
+            descriptor.normals = MeshBuffer(normals)
+            descriptor.primitives = .triangles(indices)
+            descriptor.materials = .allFaces(UInt32(descriptors.count))
+            descriptors.append(descriptor)
+            colors.append(key.platformColor)
+        }
+        return (descriptors, colors)
+    }
+}
+
+// The RealityKit canvas is built on ARView and CustomMaterial, neither of which
+// exists on visionOS; visionOS always renders through the SceneKit canvas.
+#if !os(visionOS)
 /// Experimental RealityKit viewer, selectable from the View menu. The engine
 /// port in progress: it renders the model with the SceneKit factory's grouping,
 /// framing, and decorations (grid, axes, floor, STEP colors, wireframe), takes
@@ -371,35 +415,11 @@ final class RealityStepHostView: ARView {
             return
         }
 
-        var indicesByMaterial = [StepMaterialKey: [UInt32]]()
-        let neutralKey = StepMaterialKey(red: 178, green: 186, blue: 194)
-        for triangleStart in stride(from: 0, to: mesh.indices.count, by: 3) {
-            let firstIndex = Int(mesh.indices[triangleStart])
-            guard firstIndex >= 0 && firstIndex < mesh.vertices.count else { continue }
-            let key = options.usesOriginalColors
-                ? StepMaterialKey(color: mesh.vertices[firstIndex].color)
-                : neutralKey
-            indicesByMaterial[key, default: []].append(mesh.indices[triangleStart])
-            indicesByMaterial[key, default: []].append(mesh.indices[triangleStart + 1])
-            indicesByMaterial[key, default: []].append(mesh.indices[triangleStart + 2])
-        }
-
-        let sortedKeys = indicesByMaterial.keys.sorted()
-        let positions = mesh.vertices.map { $0.position - center }
-        let normals = mesh.vertices.map(\.normal)
-
-        var descriptors = [MeshDescriptor]()
-        var materials = [any RealityKit.Material]()
-        for (materialIndex, key) in sortedKeys.enumerated() {
-            guard let indices = indicesByMaterial[key], !indices.isEmpty else { continue }
-            var descriptor = MeshDescriptor(name: "STEP mesh \(materialIndex)")
-            descriptor.positions = MeshBuffer(positions)
-            descriptor.normals = MeshBuffer(normals)
-            descriptor.primitives = .triangles(indices)
-            descriptor.materials = .allFaces(UInt32(materialIndex))
-            descriptors.append(descriptor)
-            materials.append(makeModelMaterial(color: key.platformColor))
-        }
+        let (descriptors, colors) = RealityStepMeshBuilder.parts(
+            for: mesh,
+            usesOriginalColors: options.usesOriginalColors
+        )
+        let materials = colors.map { makeModelMaterial(color: $0) }
 
         guard !descriptors.isEmpty,
               let resource = try? MeshResource.generate(from: descriptors) else {
@@ -1483,3 +1503,4 @@ extension RealityStepHostView: StepSnapScene {
         cameraEntity.position(relativeTo: nil)
     }
 }
+#endif

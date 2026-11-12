@@ -84,7 +84,7 @@ nonisolated struct ExportedModelDocument: FileDocument {
     }
 }
 
-#if os(iOS)
+#if os(iOS) || os(visionOS)
 /// One shareable rendition of the open model — the original document bytes or a
 /// mesh conversion — typed for `ShareLink`. Encoding is deferred: constructing
 /// this is a value copy, and the bytes are only produced when a share target

@@ -151,10 +151,12 @@ struct StepViewCommands: Commands {
                 Toggle("Wireframe", isOn: menuState.options.showsWireframe)
                 Toggle("STEP Colors", isOn: menuState.options.usesOriginalColors)
                     .disabled(!menuState.canUseStepColors)
+                #if !os(visionOS)
                 // The engine-port scaffold: model display, orbit, and zoom only —
                 // sections, measurement overlays, and the rest still render in the
                 // SceneKit canvas until they port.
                 Toggle("RealityKit Renderer (Experimental)", isOn: $useRealityKitRenderer)
+                #endif
 
                 Divider()
 

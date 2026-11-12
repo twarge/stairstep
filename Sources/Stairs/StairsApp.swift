@@ -104,12 +104,25 @@ struct StairsApp: App {
         }
         #endif
 
-        #if os(iOS)
+        #if os(iOS) || os(visionOS)
         if #available(iOS 18.0, *) {
             DocumentGroupLaunchScene("Stairstep") {
                 StairsDemoLaunchButton()
             }
         }
+        #endif
+
+        #if os(visionOS)
+        WindowGroup(id: StepModelVolumeStore.windowID, for: UUID.self) { modelID in
+            StepModelVolumeView(modelID: modelID.wrappedValue)
+        }
+        .windowStyle(.volumetric)
+        .defaultSize(
+            width: StepModelVolumeView.edge,
+            height: StepModelVolumeView.edge,
+            depth: StepModelVolumeView.edge,
+            in: .meters
+        )
         #endif
     }
 }
@@ -168,7 +181,7 @@ nonisolated enum StairsDemoModel {
     /// The plain NewDocumentButton reliably serializes this value on hardware,
     /// unlike its template overloads. macOS keeps its normal empty default.
     static func defaultDocument() -> StepFileDocument {
-        #if os(iOS)
+        #if os(iOS) || os(visionOS)
         do {
             let document = try document()
             NSLog("Stairstep: prepared %d-byte demo document", document.data.count)
@@ -195,7 +208,7 @@ nonisolated enum StairsDemoModelError: LocalizedError {
     }
 }
 
-#if os(iOS)
+#if os(iOS) || os(visionOS)
 /// Replaces the standard "New" item, which for a viewer would only ever make an
 /// empty document, with a command that opens another window on the same app.
 ///

@@ -19,6 +19,7 @@
 		B00000000000000000000163 /* RealityStepCanvas.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000259 /* RealityStepCanvas.swift */; };
 		B00000000000000000000170 /* RealityStepShaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000260 /* RealityStepShaders.metal */; };
 		B0000000000000000000017A /* RealityStepOverlays.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000026A /* RealityStepOverlays.swift */; };
+		B00000000000000000000195 /* StepModelVolume.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000026D /* StepModelVolume.swift */; };
 		B00000000000000000000121 /* PlatformSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000211 /* PlatformSupport.swift */; };
 		B00000000000000000000122 /* StepMaterialKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000212 /* StepMaterialKey.swift */; };
 		B00000000000000000000123 /* StepSceneFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000213 /* StepSceneFactory.swift */; };
@@ -129,6 +130,7 @@
 		A00000000000000000000259 /* RealityStepCanvas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealityStepCanvas.swift; sourceTree = "<group>"; };
 		A00000000000000000000260 /* RealityStepShaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = RealityStepShaders.metal; sourceTree = "<group>"; };
 		A0000000000000000000026A /* RealityStepOverlays.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealityStepOverlays.swift; sourceTree = "<group>"; };
+		A0000000000000000000026D /* StepModelVolume.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepModelVolume.swift; sourceTree = "<group>"; };
 		A00000000000000000000211 /* PlatformSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlatformSupport.swift; sourceTree = "<group>"; };
 		A00000000000000000000212 /* StepMaterialKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepMaterialKey.swift; sourceTree = "<group>"; };
 		A00000000000000000000213 /* StepSceneFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepSceneFactory.swift; sourceTree = "<group>"; };
@@ -255,6 +257,7 @@
 				A00000000000000000000259 /* RealityStepCanvas.swift */,
 				A00000000000000000000260 /* RealityStepShaders.metal */,
 				A0000000000000000000026A /* RealityStepOverlays.swift */,
+				A0000000000000000000026D /* StepModelVolume.swift */,
 			);
 			path = Stairs;
 			sourceTree = "<group>";
@@ -596,6 +599,7 @@
 				B00000000000000000000163 /* RealityStepCanvas.swift in Sources */,
 				B00000000000000000000170 /* RealityStepShaders.metal in Sources */,
 				B0000000000000000000017A /* RealityStepOverlays.swift in Sources */,
+				B00000000000000000000195 /* StepModelVolume.swift in Sources */,
 				B00000000000000000000107 /* StairsStepImporter.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -851,9 +855,21 @@
 					"$(SRCROOT)/Sources/StairsStepImporter/include",
 					"$(SRCROOT)/Vendor/OpenCascadeStatic/OpenCascadeStairs.xcframework/ios-arm64-simulator/Headers",
 				);
+				"HEADER_SEARCH_PATHS[sdk=xros*]" = (
+					"$(inherited)",
+					"$(SRCROOT)/Sources/StairsStepImporter/include",
+					"$(SRCROOT)/Vendor/OpenCascadeStatic/OpenCascadeStairs.xcframework/xros-arm64/Headers",
+				);
+				"HEADER_SEARCH_PATHS[sdk=xrsimulator*]" = (
+					"$(inherited)",
+					"$(SRCROOT)/Sources/StairsStepImporter/include",
+					"$(SRCROOT)/Vendor/OpenCascadeStatic/OpenCascadeStairs.xcframework/xros-arm64-simulator/Headers",
+				);
 				INFOPLIST_FILE = App/Info.plist;
 				"INFOPLIST_FILE[sdk=iphoneos*]" = App/iOSInfo.plist;
 				"INFOPLIST_FILE[sdk=iphonesimulator*]" = App/iOSInfo.plist;
+				"INFOPLIST_FILE[sdk=xros*]" = App/iOSInfo.plist;
+				"INFOPLIST_FILE[sdk=xrsimulator*]" = App/iOSInfo.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Stairstep;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
@@ -869,6 +885,14 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				"LD_RUNPATH_SEARCH_PATHS[sdk=xros*]" = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				"LD_RUNPATH_SEARCH_PATHS[sdk=xrsimulator*]" = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 1.1.1;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 c++17";
@@ -876,14 +900,17 @@
 				PRODUCT_NAME = Stairstep;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
 				SUPPORTS_MACCATALYST = NO;
-				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = YES;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/Sources/StairsStepImporter/include";
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				"TARGETED_DEVICE_FAMILY[sdk=xros*]" = 7;
+				"TARGETED_DEVICE_FAMILY[sdk=xrsimulator*]" = 7;
+				XROS_DEPLOYMENT_TARGET = 26.0;
 			};
 			name = Debug;
 		};
@@ -923,9 +950,21 @@
 					"$(SRCROOT)/Sources/StairsStepImporter/include",
 					"$(SRCROOT)/Vendor/OpenCascadeStatic/OpenCascadeStairs.xcframework/ios-arm64-simulator/Headers",
 				);
+				"HEADER_SEARCH_PATHS[sdk=xros*]" = (
+					"$(inherited)",
+					"$(SRCROOT)/Sources/StairsStepImporter/include",
+					"$(SRCROOT)/Vendor/OpenCascadeStatic/OpenCascadeStairs.xcframework/xros-arm64/Headers",
+				);
+				"HEADER_SEARCH_PATHS[sdk=xrsimulator*]" = (
+					"$(inherited)",
+					"$(SRCROOT)/Sources/StairsStepImporter/include",
+					"$(SRCROOT)/Vendor/OpenCascadeStatic/OpenCascadeStairs.xcframework/xros-arm64-simulator/Headers",
+				);
 				INFOPLIST_FILE = App/Info.plist;
 				"INFOPLIST_FILE[sdk=iphoneos*]" = App/iOSInfo.plist;
 				"INFOPLIST_FILE[sdk=iphonesimulator*]" = App/iOSInfo.plist;
+				"INFOPLIST_FILE[sdk=xros*]" = App/iOSInfo.plist;
+				"INFOPLIST_FILE[sdk=xrsimulator*]" = App/iOSInfo.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Stairstep;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
@@ -941,6 +980,14 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				"LD_RUNPATH_SEARCH_PATHS[sdk=xros*]" = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				"LD_RUNPATH_SEARCH_PATHS[sdk=xrsimulator*]" = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 1.1.1;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 c++17";
@@ -948,14 +995,17 @@
 				PRODUCT_NAME = Stairstep;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
 				SUPPORTS_MACCATALYST = NO;
-				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = YES;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/Sources/StairsStepImporter/include";
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				"TARGETED_DEVICE_FAMILY[sdk=xros*]" = 7;
+				"TARGETED_DEVICE_FAMILY[sdk=xrsimulator*]" = 7;
+				XROS_DEPLOYMENT_TARGET = 26.0;
 			};
 			name = Release;
 		};
@@ -975,9 +1025,10 @@
 				PRODUCT_NAME = StairsCore;
 				SDKROOT = auto;
 				SKIP_INSTALL = YES;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
 				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/Sources/StairsStepImporter/include";
 				SWIFT_VERSION = 6.0;
+				XROS_DEPLOYMENT_TARGET = 26.0;
 			};
 			name = Debug;
 		};
@@ -997,9 +1048,10 @@
 				PRODUCT_NAME = StairsCore;
 				SDKROOT = auto;
 				SKIP_INSTALL = YES;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
 				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/Sources/StairsStepImporter/include";
 				SWIFT_VERSION = 6.0;
+				XROS_DEPLOYMENT_TARGET = 26.0;
 			};
 			name = Release;
 		};
