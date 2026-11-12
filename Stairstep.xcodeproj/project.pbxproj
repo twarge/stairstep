@@ -40,9 +40,8 @@
 		B00000000000000000000142 /* StairsStepImporter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000221 /* StairsStepImporter.cpp */; settings = {COMPILER_FLAGS = "-Wno-documentation -Wno-deprecated-declarations"; }; };
 		B00000000000000000000151 /* ThumbnailProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000232 /* ThumbnailProvider.swift */; };
 		B00000000000000000000152 /* StairsStepImporter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000221 /* StairsStepImporter.cpp */; settings = {COMPILER_FLAGS = "-Wno-documentation -Wno-deprecated-declarations"; }; };
-		B00000000000000000000161 /* AppIcon.icns in Resources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000243 /* AppIcon.icns */; platformFilters = (macos, ); };
+		B00000000000000000000161 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000243 /* AppIcon.icon */; };
 		B00000000000000000000162 /* Stair Demo.step in Resources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000249 /* Stair Demo.step */; };
-		B00000000000000000000164 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000266 /* Assets.xcassets */; platformFilter = ios; };
 		B00000000000000000000171 /* libStairsCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A00000000000000000000103 /* libStairsCore.a */; };
 		B00000000000000000000172 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A00000000000000000000251 /* AppKit.framework */; platformFilters = (macos, ); };
 		B00000000000000000000173 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A00000000000000000000252 /* IOKit.framework */; platformFilters = (macos, ); };
@@ -154,7 +153,7 @@
 		A00000000000000000000232 /* ThumbnailProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThumbnailProvider.swift; sourceTree = "<group>"; };
 		A00000000000000000000241 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A00000000000000000000242 /* iOSInfo.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = iOSInfo.plist; sourceTree = "<group>"; };
-		A00000000000000000000243 /* AppIcon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = AppIcon.icns; sourceTree = "<group>"; };
+		A00000000000000000000243 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>"; };
 		A00000000000000000000244 /* QuickLookExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = QuickLookExtension.entitlements; sourceTree = "<group>"; };
 		A00000000000000000000245 /* StairsQuickLookPreview Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "StairsQuickLookPreview Info.plist"; path = StairsQuickLookPreview.appex/Contents/Info.plist; sourceTree = "<group>"; };
 		A00000000000000000000246 /* StairsQuickLookThumbnail Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "StairsQuickLookThumbnail Info.plist"; path = StairsQuickLookThumbnail.appex/Contents/Info.plist; sourceTree = "<group>"; };
@@ -173,7 +172,6 @@
 		A00000000000000000000262 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		A00000000000000000000264 /* build-occt.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "build-occt.sh"; sourceTree = "<group>"; };
 		A00000000000000000000265 /* generate_app_icon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = generate_app_icon.swift; sourceTree = "<group>"; };
-		A00000000000000000000266 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A00000000000000000000267 /* build-occt-xcframework.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "build-occt-xcframework.sh"; sourceTree = "<group>"; };
 		A00000000000000000000268 /* build-occt-ios.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "build-occt-ios.sh"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -333,8 +331,7 @@
 		900000000000000000000021 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				A00000000000000000000243 /* AppIcon.icns */,
-				A00000000000000000000266 /* Assets.xcassets */,
+				A00000000000000000000243 /* AppIcon.icon */,
 				A00000000000000000000249 /* Stair Demo.step */,
 			);
 			path = Resources;
@@ -538,8 +535,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B00000000000000000000161 /* AppIcon.icns in Resources */,
-				B00000000000000000000164 /* Assets.xcassets in Resources */,
+				B00000000000000000000161 /* AppIcon.icon in Resources */,
 				B00000000000000000000162 /* Stair Demo.step in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -823,8 +819,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = arm64;
-				"ASSETCATALOG_COMPILER_APPICON_NAME[sdk=iphoneos*]" = AppIcon;
-				"ASSETCATALOG_COMPILER_APPICON_NAME[sdk=iphonesimulator*]" = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CLANG_CXX_LIBRARY = "libc++";
 				CODE_SIGNING_ALLOWED = YES;
@@ -918,8 +913,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = arm64;
-				"ASSETCATALOG_COMPILER_APPICON_NAME[sdk=iphoneos*]" = AppIcon;
-				"ASSETCATALOG_COMPILER_APPICON_NAME[sdk=iphonesimulator*]" = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CLANG_CXX_LIBRARY = "libc++";
 				CODE_SIGNING_ALLOWED = YES;
