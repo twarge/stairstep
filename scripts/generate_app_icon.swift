@@ -10,9 +10,11 @@
 // so the artwork here is full bleed and carries no mask, rim or shadow of its
 // own.
 //
-// The picture is three steps standing on a work plane, on a green ground. From
-// back to front the layers are the ground (the fill in icon.json), Plane, Body
-// (risers and the stepped side) and Treads.
+// The picture is three steps standing on a work plane, on a green ground, cut
+// through the way the app's cross-section tool cuts a model: the stepped end is
+// the cut face, in the app's default fill with its diagonal hatching. From back
+// to front the layers are the ground (the fill in icon.json), Plane, Body (the
+// risers), Section (the cut face) and Treads.
 //
 // The bundle is committed, so this only needs running when the design changes.
 // To look at the result without building:
@@ -31,6 +33,9 @@ let treadColor = "#FFF1A4"
 let treadEdgeColor = "#FFFCC7"
 let riserColor = "#EFC764"
 let sideColor = "#B38F3F"
+/// The cut face: StairsSectionColor.defaultHex, the app's own section fill.
+let cutColor = "#E2E8C1"
+let hatchColor = "#10281A"
 let planeColor = "#1A5E3A"
 let planeLineColor = "#C7E373"
 
@@ -40,35 +45,48 @@ let groundDark = ["0.07000,0.24000,0.13500", "0.00000,0.06500,0.03500"]
 
 // MARK: Model
 
-/// Model units: x runs right and down the canvas, z left and down, y up.
-struct Step {
-    var back: Double
-    var front: Double
-    var height: Double
+// Model units are the same length along every axis: x runs right and down the
+// canvas, z left and down, y up. The staircase stands on y = 0 with its back at
+// z = 0 and its steps coming down towards the viewer. It is cut off square at
+// x = stairWidth, and that end is the hatched face.
+let stepCount = 3
+let stepRun = 0.9
+let stepRise = 0.8
+let stairWidth = 2.5
+
+let stairDepth = Double(stepCount) * stepRun
+let stairHeight = Double(stepCount) * stepRise
+
+/// How far the work plane reaches past the staircase on every side.
+let planeMargin = 0.45
+let planeX = (min: -planeMargin, max: stairWidth + planeMargin)
+let planeZ = (min: -planeMargin, max: stairDepth + planeMargin)
+/// Faint rulings across the plane, at these x.
+let planeRulings = (0...3).map { Double($0) * stairWidth / 3 }
+
+/// Step 0 is the tallest, at the back.
+func stepHeight(_ step: Int) -> Double {
+    Double(stepCount - step) * stepRise
 }
 
-/// Back to front, tallest first.
-let steps = [
-    Step(back: 0.00, front: 0.92, height: 2.46),
-    Step(back: 0.92, front: 1.80, height: 1.64),
-    Step(back: 1.80, front: 2.68, height: 0.82)
-]
-let stairLeft = -0.10
-let stairRight = 3.20
+func stepBack(_ step: Int) -> Double {
+    Double(step) * stepRun
+}
 
-let planeX = (min: -0.54, max: 3.66)
-let planeZ = (min: -0.32, max: 3.10)
-/// Faint rulings across the plane, at these x.
-let planeRulings = [-0.10, 1.00, 2.10, 3.20]
+func stepFront(_ step: Int) -> Double {
+    Double(step + 1) * stepRun
+}
 
 // MARK: Projection
 
 let canvas = 1024.0
-/// Canvas points per model unit along a ground axis, and per unit of height.
-let unit = 105.0
-let rise = 90.6
+/// Canvas points a model unit covers sideways along either ground axis.
+let unit = 118.0
 /// How far a ground axis drops for each point it travels sideways.
 let slope = 0.43
+/// Canvas points a model unit covers upwards. With this value the three axes
+/// are one true view, from 45 degrees round and asin(slope) above.
+let rise = unit * (2 * (1 - slope * slope)).squareRoot()
 
 struct Point {
     var x: Double
@@ -84,7 +102,7 @@ let origin: Point = {
     let outline = [
         flat(planeX.min, 0, planeZ.min), flat(planeX.max, 0, planeZ.min),
         flat(planeX.max, 0, planeZ.max), flat(planeX.min, 0, planeZ.max),
-        flat(stairLeft, steps[0].height, 0), flat(stairRight, steps[0].height, 0)
+        flat(0, stairHeight, 0), flat(stairWidth, stairHeight, 0)
     ]
     let xs = outline.map(\.x)
     let ys = outline.map(\.y)
@@ -99,6 +117,160 @@ func project(_ x: Double, _ y: Double, _ z: Double) -> Point {
     return Point(x: origin.x + point.x, y: origin.y + point.y)
 }
 
+// MARK: Shapes
+
+/// A filled outline, or a line when it is left open.
+struct Shape {
+    var points: [Point]
+    var isClosed = true
+    var fill: String?
+    var stroke: String?
+    var strokeOpacity = 1.0
+    var strokeWidth = 0.0
+}
+
+/// The part of a polygon where `side` is not negative.
+func clip(_ polygon: [Point], _ side: (Point) -> Double) -> [Point] {
+    var kept: [Point] = []
+    for (index, current) in polygon.enumerated() {
+        let previous = polygon[(index + polygon.count - 1) % polygon.count]
+        let before = side(previous)
+        let after = side(current)
+        if (before >= 0) != (after >= 0) {
+            let along = before / (before - after)
+            kept.append(Point(
+                x: previous.x + (current.x - previous.x) * along,
+                y: previous.y + (current.y - previous.y) * along
+            ))
+        }
+        if after >= 0 {
+            kept.append(current)
+        }
+    }
+    return kept
+}
+
+// MARK: Layers
+
+/// The three top faces. Their stroke overlaps the faces below by a hair, so no
+/// seam shows between the layers.
+func treads() -> [Shape] {
+    (0..<stepCount).map { step in
+        let height = stepHeight(step)
+        return Shape(
+            points: [
+                project(0, height, stepBack(step)),
+                project(stairWidth, height, stepBack(step)),
+                project(stairWidth, height, stepFront(step)),
+                project(0, height, stepFront(step))
+            ],
+            fill: treadColor,
+            stroke: treadEdgeColor,
+            strokeWidth: 6
+        )
+    }
+}
+
+/// The outline of the cut: the staircase's profile, in the plane x = stairWidth.
+func profile() -> [Point] {
+    var outline = [project(stairWidth, 0, 0)]
+    for step in 0..<stepCount {
+        outline.append(project(stairWidth, stepHeight(step), stepBack(step)))
+        outline.append(project(stairWidth, stepHeight(step), stepFront(step)))
+    }
+    outline.append(project(stairWidth, 0, stairDepth))
+    return outline
+}
+
+/// The risers, over a backing the shape of the cut face so that nothing behind
+/// the staircase shows through where the Section layer meets them.
+func stairBody() -> [Shape] {
+    var body = [Shape(points: profile(), fill: sideColor)]
+    for step in (0..<stepCount).reversed() {
+        let top = stepHeight(step)
+        let bottom = top - stepRise
+        body.append(Shape(
+            points: [
+                project(0, top, stepFront(step)),
+                project(stairWidth, top, stepFront(step)),
+                project(stairWidth, bottom, stepFront(step)),
+                project(0, bottom, stepFront(step))
+            ],
+            fill: riserColor
+        ))
+    }
+    return body
+}
+
+/// Stripe width and the distance from one stripe to the next, measured across
+/// them.
+let hatchWidth = 8.0
+let hatchSpacing = 30.0
+
+/// The cut face. As in the app, the hatching runs at 45 degrees on the canvas
+/// whatever angle the face is seen from. Each stripe is cut to the outline, so
+/// its ends follow the edge.
+func section() -> [Shape] {
+    let outline = profile()
+    var face = [Shape(points: outline, fill: cutColor)]
+    // Constant along a stripe, and one per canvas point across the stripes.
+    func across(_ point: Point) -> Double {
+        (point.x - point.y) / 2.0.squareRoot()
+    }
+    let reach = outline.map(across)
+    var centre = reach.min()! + hatchSpacing / 2
+    while centre - hatchWidth / 2 < reach.max()! {
+        let low = centre - hatchWidth / 2
+        let high = centre + hatchWidth / 2
+        let stripe = clip(clip(outline) { across($0) - low }) { high - across($0) }
+        if stripe.count >= 3 {
+            face.append(Shape(points: stripe, fill: hatchColor))
+        }
+        centre += hatchSpacing
+    }
+    return face
+}
+
+func plane() -> [Shape] {
+    var body = [Shape(
+        points: [
+            project(planeX.min, 0, planeZ.min),
+            project(planeX.max, 0, planeZ.min),
+            project(planeX.max, 0, planeZ.max),
+            project(planeX.min, 0, planeZ.max)
+        ],
+        fill: planeColor,
+        stroke: planeLineColor,
+        strokeOpacity: 0.58,
+        strokeWidth: 6
+    )]
+    for x in planeRulings {
+        body.append(Shape(
+            points: [project(x, 0, planeZ.min + 0.08), project(x, 0, planeZ.max - 0.08)],
+            isClosed: false,
+            stroke: planeLineColor,
+            strokeOpacity: 0.2,
+            strokeWidth: 3
+        ))
+    }
+    return body
+}
+
+struct Layer {
+    var name: String
+    var shapes: [Shape]
+    var shadow: String
+}
+
+/// Front to back, the order icon.json lists them. Each is a glass piece in its
+/// own group, so each catches its own highlight and casts its own shadow.
+let layers = [
+    Layer(name: "Treads", shapes: treads(), shadow: "0.5"),
+    Layer(name: "Section", shapes: section(), shadow: "0.5"),
+    Layer(name: "Body", shapes: stairBody(), shadow: "0.5"),
+    Layer(name: "Plane", shapes: plane(), shadow: "0.5")
+]
+
 // MARK: SVG
 
 func number(_ value: Double) -> String {
@@ -106,95 +278,31 @@ func number(_ value: Double) -> String {
     return text.hasSuffix(".0") ? String(text.dropLast(2)) : text
 }
 
-func points(_ list: [Point]) -> String {
-    list.map { "\(number($0.x)),\(number($0.y))" }.joined(separator: " ")
+func svg(_ shape: Shape) -> String {
+    var path = shape.points.enumerated()
+        .map { "\($0.offset == 0 ? "M" : "L")\(number($0.element.x)),\(number($0.element.y))" }
+        .joined(separator: " ")
+    if shape.isClosed {
+        path += " Z"
+    }
+    var element = "<path d=\"\(path)\" fill=\"\(shape.fill ?? "none")\""
+    if let stroke = shape.stroke {
+        element += " stroke=\"\(stroke)\" stroke-width=\"\(number(shape.strokeWidth))\""
+        if shape.strokeOpacity < 1 {
+            element += " stroke-opacity=\"\(shape.strokeOpacity)\""
+        }
+        element += " stroke-linejoin=\"round\" stroke-linecap=\"round\""
+    }
+    return element + "/>"
 }
 
-func svg(_ body: [String]) -> String {
+func svg(_ shapes: [Shape]) -> String {
     "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"1024\" height=\"1024\" viewBox=\"0 0 1024 1024\">\n"
-        + body.map { "  \($0)\n" }.joined()
+        + shapes.map { "  \(svg($0))\n" }.joined()
         + "</svg>\n"
 }
 
-// MARK: Layers
-
-/// The three top faces. Their stroke overlaps the risers below by a hair, so no
-/// seam shows between the two layers.
-func treads() -> [String] {
-    var body = ["<g fill=\"\(treadColor)\" stroke=\"\(treadEdgeColor)\" stroke-width=\"6\" stroke-linejoin=\"round\">"]
-    for step in steps {
-        let face = [
-            project(stairLeft, step.height, step.back),
-            project(stairRight, step.height, step.back),
-            project(stairRight, step.height, step.front),
-            project(stairLeft, step.height, step.front)
-        ]
-        body.append("  <polygon points=\"\(points(face))\"/>")
-    }
-    body.append("</g>")
-    return body
-}
-
-/// The visible part of each riser, and the stepped side as one outline.
-func stairBody() -> [String] {
-    var profile = [project(stairRight, 0, 0)]
-    var body: [String] = []
-    var floor = 0.0
-    for step in steps.reversed() {
-        let riser = [
-            project(stairLeft, step.height, step.front),
-            project(stairRight, step.height, step.front),
-            project(stairRight, floor, step.front),
-            project(stairLeft, floor, step.front)
-        ]
-        body.append("<polygon points=\"\(points(riser))\" fill=\"\(riserColor)\"/>")
-        floor = step.height
-    }
-    for step in steps {
-        profile.append(project(stairRight, step.height, step.back))
-        profile.append(project(stairRight, step.height, step.front))
-    }
-    profile.append(project(stairRight, 0, steps[steps.count - 1].front))
-    body.insert("<polygon points=\"\(points(profile))\" fill=\"\(sideColor)\"/>", at: 0)
-    return body
-}
-
-func plane() -> [String] {
-    let corners = [
-        project(planeX.min, 0, planeZ.min),
-        project(planeX.max, 0, planeZ.min),
-        project(planeX.max, 0, planeZ.max),
-        project(planeX.min, 0, planeZ.max)
-    ]
-    var body = [
-        "<polygon points=\"\(points(corners))\" fill=\"\(planeColor)\" stroke=\"\(planeLineColor)\" "
-            + "stroke-opacity=\"0.58\" stroke-width=\"6\" stroke-linejoin=\"round\"/>",
-        "<g stroke=\"\(planeLineColor)\" stroke-opacity=\"0.2\" stroke-width=\"3\" stroke-linecap=\"round\">"
-    ]
-    for x in planeRulings {
-        let from = project(x, 0, planeZ.min + 0.08)
-        let to = project(x, 0, planeZ.max - 0.10)
-        body.append("  <line x1=\"\(number(from.x))\" y1=\"\(number(from.y))\" x2=\"\(number(to.x))\" y2=\"\(number(to.y))\"/>")
-    }
-    body.append("</g>")
-    return body
-}
-
 // MARK: icon.json
-
-struct Layer {
-    var name: String
-    var body: [String]
-    var shadow: String
-}
-
-/// Front to back, the order icon.json lists them. Each is a glass piece in its
-/// own group, so each catches its own highlight and casts its own shadow.
-let layers = [
-    Layer(name: "Treads", body: treads(), shadow: "0.5"),
-    Layer(name: "Body", body: stairBody(), shadow: "0.5"),
-    Layer(name: "Plane", body: plane(), shadow: "0.5")
-]
 
 func gradient(_ stops: [String], indent: String) -> String {
     """
@@ -265,7 +373,7 @@ try? fileManager.removeItem(at: iconURL)
 try fileManager.createDirectory(at: assetsURL, withIntermediateDirectories: true)
 
 for layer in layers {
-    try svg(layer.body).write(
+    try svg(layer.shapes).write(
         to: assetsURL.appendingPathComponent("\(layer.name).svg"),
         atomically: true,
         encoding: .utf8

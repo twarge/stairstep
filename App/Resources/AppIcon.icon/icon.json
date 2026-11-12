@@ -38,6 +38,22 @@
     {
       "layers" : [
         {
+          "image-name" : "Section.svg",
+          "name" : "Section"
+        }
+      ],
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
+      },
+      "translucency" : {
+        "enabled" : false,
+        "value" : 0.5
+      }
+    },
+    {
+      "layers" : [
+        {
           "image-name" : "Body.svg",
           "name" : "Body"
         }

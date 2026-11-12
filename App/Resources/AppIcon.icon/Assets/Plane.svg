@@ -1,9 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
-  <polygon points="471,434.3 912,623.9 552.9,778.3 111.9,588.7" fill="#1A5E3A" stroke="#C7E373" stroke-opacity="0.58" stroke-width="6" stroke-linejoin="round"/>
-  <g stroke="#C7E373" stroke-opacity="0.2" stroke-width="3" stroke-linecap="round">
-    <line x1="508.8" y1="457.7" x2="168.6" y2="604"/>
-    <line x1="624.3" y1="507.4" x2="284.1" y2="653.7"/>
-    <line x1="739.8" y1="557.1" x2="399.6" y2="703.4"/>
-    <line x1="855.4" y1="606.7" x2="515.1" y2="753"/>
-  </g>
+  <path d="M523.8,492.4 L925,664.9 L500.2,847.6 L99,675 Z" fill="#1A5E3A" stroke="#C7E373" stroke-width="6" stroke-opacity="0.58" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M567.5,519.3 L161.5,693.8" fill="none" stroke="#C7E373" stroke-width="3" stroke-opacity="0.2" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M665.8,561.5 L259.9,736.1" fill="none" stroke="#C7E373" stroke-width="3" stroke-opacity="0.2" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M764.1,603.8 L358.2,778.4" fill="none" stroke="#C7E373" stroke-width="3" stroke-opacity="0.2" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M862.5,646.1 L456.5,820.7" fill="none" stroke="#C7E373" stroke-width="3" stroke-opacity="0.2" stroke-linejoin="round" stroke-linecap="round"/>
 </svg>
