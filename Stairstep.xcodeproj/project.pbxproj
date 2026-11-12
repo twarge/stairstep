@@ -16,6 +16,7 @@
 		B00000000000000000000107 /* StairsStepImporter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000221 /* StairsStepImporter.cpp */; settings = {COMPILER_FLAGS = "-Wno-documentation -Wno-deprecated-declarations"; }; };
 		B00000000000000000000108 /* StepMeasurementOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000207 /* StepMeasurementOverlay.swift */; };
 		B00000000000000000000109 /* StairsDistractionFree.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000208 /* StairsDistractionFree.swift */; };
+		B00000000000000000000196 /* SettingsSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000026E /* SettingsSync.swift */; };
 		B00000000000000000000163 /* RealityStepCanvas.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000259 /* RealityStepCanvas.swift */; };
 		B00000000000000000000170 /* RealityStepShaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000260 /* RealityStepShaders.metal */; };
 		B0000000000000000000017A /* RealityStepOverlays.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000026A /* RealityStepOverlays.swift */; };
@@ -127,6 +128,7 @@
 		A00000000000000000000206 /* StepViewCommands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepViewCommands.swift; sourceTree = "<group>"; };
 		A00000000000000000000207 /* StepMeasurementOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepMeasurementOverlay.swift; sourceTree = "<group>"; };
 		A00000000000000000000208 /* StairsDistractionFree.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StairsDistractionFree.swift; sourceTree = "<group>"; };
+		A0000000000000000000026E /* SettingsSync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsSync.swift; sourceTree = "<group>"; };
 		A00000000000000000000259 /* RealityStepCanvas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealityStepCanvas.swift; sourceTree = "<group>"; };
 		A00000000000000000000260 /* RealityStepShaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = RealityStepShaders.metal; sourceTree = "<group>"; };
 		A0000000000000000000026A /* RealityStepOverlays.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealityStepOverlays.swift; sourceTree = "<group>"; };
@@ -254,6 +256,7 @@
 				A00000000000000000000206 /* StepViewCommands.swift */,
 				A00000000000000000000207 /* StepMeasurementOverlay.swift */,
 				A00000000000000000000208 /* StairsDistractionFree.swift */,
+				A0000000000000000000026E /* SettingsSync.swift */,
 				A00000000000000000000259 /* RealityStepCanvas.swift */,
 				A00000000000000000000260 /* RealityStepShaders.metal */,
 				A0000000000000000000026A /* RealityStepOverlays.swift */,
@@ -596,6 +599,7 @@
 				B00000000000000000000106 /* StepViewCommands.swift in Sources */,
 				B00000000000000000000108 /* StepMeasurementOverlay.swift in Sources */,
 				B00000000000000000000109 /* StairsDistractionFree.swift in Sources */,
+				B00000000000000000000196 /* SettingsSync.swift in Sources */,
 				B00000000000000000000163 /* RealityStepCanvas.swift in Sources */,
 				B00000000000000000000170 /* RealityStepShaders.metal in Sources */,
 				B0000000000000000000017A /* RealityStepOverlays.swift in Sources */,
@@ -827,6 +831,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CLANG_CXX_LIBRARY = "libc++";
 				CODE_SIGNING_ALLOWED = YES;
+				"CODE_SIGN_ENTITLEMENTS[sdk=iphone*]" = "App/Stairs-iOS.entitlements";
 				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = App/Stairs.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
@@ -921,6 +926,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CLANG_CXX_LIBRARY = "libc++";
 				CODE_SIGNING_ALLOWED = YES;
+				"CODE_SIGN_ENTITLEMENTS[sdk=iphone*]" = "App/Stairs-iOS.entitlements";
 				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = App/Stairs.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;

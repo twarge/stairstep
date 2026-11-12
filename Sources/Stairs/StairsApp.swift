@@ -70,6 +70,10 @@ struct StairsPackageEntryPoint {
 struct StairsApp: App {
     @AppStorage(StairsTheme.storageKey) private var theme = StairsTheme.system
 
+    init() {
+        SettingsSync.shared.start()
+    }
+
     var body: some Scene {
         DocumentGroup(newDocument: StairsDemoModel.defaultDocument()) { configuration in
             StepDocumentView(configuration: configuration, document: configuration.$document)
