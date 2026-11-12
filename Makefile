@@ -76,7 +76,7 @@ ios: deps-ios ## Build the iOS app for the arm64 simulator
 spm: deps ## Build the Swift package (fastest full type-check)
 	swift build
 
-icon: ## Regenerate App/Resources/AppIcon.icon from its generator script
+icon: ## Regenerate the app icon (AppIcon.icon and the visionOS image stack) from its generator script
 	swift scripts/generate_app_icon.swift
 
 ## Dependencies (vendored OpenCascade static builds)

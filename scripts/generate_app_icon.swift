@@ -1,31 +1,40 @@
 #!/usr/bin/env swift
 
-// Writes the app icon as an Icon Composer bundle.
+// Writes the app icon: an Icon Composer bundle for macOS and iOS, and an image
+// stack for visionOS.
 //
 //     swift scripts/generate_app_icon.swift        (or `make icon`)
 //
-// The output is App/Resources/AppIcon.icon: icon.json plus one SVG per layer.
-// Xcode's asset compiler turns it into every size each platform needs and
-// applies the system shape and the glass, dark, clear and tinted treatments,
-// so the artwork here is full bleed and carries no mask, rim or shadow of its
-// own.
-//
 // The picture is three steps standing on a work plane, on a green ground, cut
 // through the way the app's cross-section tool cuts a model: the stepped end is
-// the cut face, in the app's default fill with its diagonal hatching. From back
-// to front the layers are the ground (the fill in icon.json), Plane, Body (the
+// the cut face, in the app's default fill with its diagonal hatching.
+//
+// App/Resources/AppIcon.icon is icon.json plus one SVG per layer. Xcode's asset
+// compiler turns it into every size each platform needs and applies the system
+// shape and the glass, dark, clear and tinted treatments, so the artwork here
+// is full bleed and carries no mask, rim or shadow of its own. From back to
+// front the layers are the ground (the fill in icon.json), Plane, Body (the
 // risers), Section (the cut face) and Treads.
 //
-// The bundle is committed, so this only needs running when the design changes.
-// To look at the result without building:
+// visionOS takes nothing from that bundle. Its icon is
+// App/Resources/Assets.xcassets/AppIcon.solidimagestack: the same shapes drawn
+// into three 1024 px PNGs (ground, work plane, staircase) that the system
+// spreads in depth and crops to a circle. The asset compiler gives each
+// platform the one it understands, under the one name AppIcon.
+//
+// Both are committed, so this only needs running when the design changes. To
+// look at the Icon Composer result without building:
 //
 //     "/Applications/Xcode.app/Contents/Applications/Icon Composer.app/Contents/Executables/ictool" \
 //         App/Resources/AppIcon.icon --export-image --output-file icon.png \
 //         --platform macOS --rendition Default --width 512 --height 512 --scale 2
 //
-// Foundation only: no AppKit, so it starts in a second or two.
+// Foundation, CoreGraphics and ImageIO only: no AppKit, so it starts in a
+// second or two.
 
+import CoreGraphics
 import Foundation
+import ImageIO
 
 // MARK: Colours
 
@@ -362,6 +371,95 @@ func iconJSON() -> String {
     """
 }
 
+// MARK: visionOS image stack
+
+/// The stack's layers, front to back. The back one has to be opaque.
+let stackLayers: [(name: String, shapes: [Shape])] = [
+    ("Front", stairBody() + section() + treads()),
+    ("Middle", plane()),
+    ("Back", [])
+]
+
+/// visionOS crops to a circle and slides the layers as the viewer moves, so the
+/// drawing is drawn this much smaller about the centre to stay clear of the edge.
+let stackScale = 0.88
+
+let sRGB = CGColorSpace(name: CGColorSpace.sRGB)!
+
+func color(_ components: [Double], opacity: Double = 1) -> CGColor {
+    CGColor(colorSpace: sRGB, components: components.map { CGFloat($0) } + [CGFloat(opacity)])!
+}
+
+/// "#RRGGBB"
+func color(_ hex: String, opacity: Double = 1) -> CGColor {
+    let value = Int(hex.dropFirst(), radix: 16)!
+    return color([16, 8, 0].map { Double((value >> $0) & 0xFF) / 255 }, opacity: opacity)
+}
+
+func draw(_ shape: Shape, in context: CGContext) {
+    context.beginPath()
+    context.addLines(between: shape.points.map { CGPoint(x: $0.x, y: $0.y) })
+    if shape.isClosed {
+        context.closePath()
+    }
+    if let fill = shape.fill {
+        context.setFillColor(color(fill))
+    }
+    if let stroke = shape.stroke {
+        context.setStrokeColor(color(stroke, opacity: shape.strokeOpacity))
+        context.setLineWidth(shape.strokeWidth)
+    }
+    switch (shape.fill, shape.stroke) {
+    case (.some, .some): context.drawPath(using: .fillStroke)
+    case (.some, nil): context.drawPath(using: .fill)
+    default: context.drawPath(using: .stroke)
+    }
+}
+
+/// A 1024 px PNG of the shapes, in the SVGs' coordinates. With no shapes it is
+/// the ground alone, full bleed and without an alpha channel.
+func png(_ shapes: [Shape]) -> Data {
+    let size = Int(canvas)
+    let alpha: CGImageAlphaInfo = shapes.isEmpty ? .noneSkipLast : .premultipliedLast
+    let context = CGContext(
+        data: nil, width: size, height: size, bitsPerComponent: 8, bytesPerRow: 0,
+        space: sRGB, bitmapInfo: alpha.rawValue
+    )!
+    // y runs down, as it does in an SVG.
+    context.translateBy(x: 0, y: canvas)
+    context.scaleBy(x: 1, y: -1)
+
+    if shapes.isEmpty {
+        let stops = ground.map { color($0.split(separator: ",").map { Double($0)! }) }
+        let fade = CGGradient(colorsSpace: sRGB, colors: stops as CFArray, locations: [0, 1])!
+        context.drawLinearGradient(fade, start: .zero, end: CGPoint(x: 0, y: canvas), options: [])
+    } else {
+        context.translateBy(x: canvas / 2, y: canvas / 2)
+        context.scaleBy(x: stackScale, y: stackScale)
+        context.translateBy(x: -canvas / 2, y: -canvas / 2)
+        context.setLineJoin(.round)
+        context.setLineCap(.round)
+        for shape in shapes {
+            draw(shape, in: context)
+        }
+    }
+
+    let data = NSMutableData()
+    let destination = CGImageDestinationCreateWithData(data, "public.png" as CFString, 1, nil)!
+    CGImageDestinationAddImage(destination, context.makeImage()!, nil)
+    guard CGImageDestinationFinalize(destination) else {
+        fatalError("Could not encode a PNG")
+    }
+    return data as Data
+}
+
+/// An asset catalog Contents.json, in the style Xcode saves.
+func contents(_ extra: [String: Any] = [:]) throws -> Data {
+    let info: [String: Any] = ["author": "xcode", "version": 1]
+    let object = extra.merging(["info": info]) { first, _ in first }
+    return try JSONSerialization.data(withJSONObject: object, options: [.prettyPrinted, .sortedKeys]) + Data("\n".utf8)
+}
+
 // MARK: Output
 
 let fileManager = FileManager.default
@@ -382,3 +480,22 @@ for layer in layers {
 try iconJSON().write(to: iconURL.appendingPathComponent("icon.json"), atomically: true, encoding: .utf8)
 
 print(iconURL.path)
+
+let catalogURL = rootURL.appendingPathComponent("App/Resources/Assets.xcassets", isDirectory: true)
+let stackURL = catalogURL.appendingPathComponent("AppIcon.solidimagestack", isDirectory: true)
+
+try? fileManager.removeItem(at: stackURL)
+for layer in stackLayers {
+    let layerURL = stackURL.appendingPathComponent("\(layer.name).solidimagestacklayer", isDirectory: true)
+    let imagesURL = layerURL.appendingPathComponent("Content.imageset", isDirectory: true)
+    try fileManager.createDirectory(at: imagesURL, withIntermediateDirectories: true)
+    try contents().write(to: layerURL.appendingPathComponent("Contents.json"))
+    try contents(["images": [["filename": "\(layer.name).png", "idiom": "vision", "scale": "2x"]]])
+        .write(to: imagesURL.appendingPathComponent("Contents.json"))
+    try png(layer.shapes).write(to: imagesURL.appendingPathComponent("\(layer.name).png"))
+}
+try contents(["layers": stackLayers.map { ["filename": "\($0.name).solidimagestacklayer"] }])
+    .write(to: stackURL.appendingPathComponent("Contents.json"))
+try contents().write(to: catalogURL.appendingPathComponent("Contents.json"))
+
+print(stackURL.path)

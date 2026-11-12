@@ -41,6 +41,7 @@
 		B00000000000000000000151 /* ThumbnailProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000232 /* ThumbnailProvider.swift */; };
 		B00000000000000000000152 /* StairsStepImporter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000221 /* StairsStepImporter.cpp */; settings = {COMPILER_FLAGS = "-Wno-documentation -Wno-deprecated-declarations"; }; };
 		B00000000000000000000161 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000243 /* AppIcon.icon */; };
+		B00000000000000000000164 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000266 /* Assets.xcassets */; };
 		B00000000000000000000162 /* Stair Demo.step in Resources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000249 /* Stair Demo.step */; };
 		B00000000000000000000171 /* libStairsCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A00000000000000000000103 /* libStairsCore.a */; };
 		B00000000000000000000172 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A00000000000000000000251 /* AppKit.framework */; platformFilters = (macos, ); };
@@ -154,6 +155,7 @@
 		A00000000000000000000241 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A00000000000000000000242 /* iOSInfo.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = iOSInfo.plist; sourceTree = "<group>"; };
 		A00000000000000000000243 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>"; };
+		A00000000000000000000266 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A00000000000000000000244 /* QuickLookExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = QuickLookExtension.entitlements; sourceTree = "<group>"; };
 		A00000000000000000000245 /* StairsQuickLookPreview Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "StairsQuickLookPreview Info.plist"; path = StairsQuickLookPreview.appex/Contents/Info.plist; sourceTree = "<group>"; };
 		A00000000000000000000246 /* StairsQuickLookThumbnail Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "StairsQuickLookThumbnail Info.plist"; path = StairsQuickLookThumbnail.appex/Contents/Info.plist; sourceTree = "<group>"; };
@@ -332,6 +334,7 @@
 			isa = PBXGroup;
 			children = (
 				A00000000000000000000243 /* AppIcon.icon */,
+				A00000000000000000000266 /* Assets.xcassets */,
 				A00000000000000000000249 /* Stair Demo.step */,
 			);
 			path = Resources;
@@ -536,6 +539,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B00000000000000000000161 /* AppIcon.icon in Resources */,
+				B00000000000000000000164 /* Assets.xcassets in Resources */,
 				B00000000000000000000162 /* Stair Demo.step in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
