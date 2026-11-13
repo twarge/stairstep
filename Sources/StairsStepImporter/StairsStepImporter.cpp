@@ -4,11 +4,17 @@
 #include <BRepMesh_IncrementalMesh.hxx>
 #include <BRep_Tool.hxx>
 #include <BRepTools.hxx>
+#include <DEBREP_ConfigurationNode.hxx>
 #include <DEBREP_Provider.hxx>
+#include <DEGLTF_ConfigurationNode.hxx>
 #include <DEGLTF_Provider.hxx>
+#include <DEIGES_ConfigurationNode.hxx>
 #include <DEIGES_Provider.hxx>
+#include <DEOBJ_ConfigurationNode.hxx>
 #include <DEOBJ_Provider.hxx>
+#include <DEPLY_ConfigurationNode.hxx>
 #include <DEPLY_Provider.hxx>
+#include <DESTL_ConfigurationNode.hxx>
 #include <DESTL_Provider.hxx>
 #include <IFSelect_ReturnStatus.hxx>
 #include <IMeshTools_Parameters.hxx>
@@ -139,11 +145,14 @@ bool readSTEPStream(
     return transferSTEP(reader, document, range);
 }
 
-template <typename Provider>
+// A data-exchange provider reads nothing without its configuration node: OCCT
+// rejects a default-constructed one with "Configuration Node is null". A fresh
+// node carries the format's default reading parameters.
+template <typename Provider, typename Node>
 bool readWithProvider(const char *path, occ::handle<TDocStd_Document> &document, const Message_ProgressRange &range)
 {
     try {
-        Provider provider;
+        Provider provider(new Node());
         return provider.Read(TCollection_AsciiString(path), document, range);
     } catch (const Standard_Failure &) {
         return false;
@@ -201,7 +210,7 @@ bool readBREP(const char *path, occ::handle<TDocStd_Document> &document, const M
         return true;
     }
 
-    return readWithProvider<DEBREP_Provider>(path, document, range);
+    return readWithProvider<DEBREP_Provider, DEBREP_ConfigurationNode>(path, document, range);
 }
 
 // Defined below; the BREP-instance path reuses the same face emitter as the
@@ -398,17 +407,17 @@ bool readDocument(
     case HNModelFormatSTEP:
         return readSTEP(path, document, range);
     case HNModelFormatIGES:
-        return readWithProvider<DEIGES_Provider>(path, document, range);
+        return readWithProvider<DEIGES_Provider, DEIGES_ConfigurationNode>(path, document, range);
     case HNModelFormatBREP:
         return readBREP(path, document, range);
     case HNModelFormatSTL:
-        return readWithProvider<DESTL_Provider>(path, document, range);
+        return readWithProvider<DESTL_Provider, DESTL_ConfigurationNode>(path, document, range);
     case HNModelFormatPLY:
-        return readWithProvider<DEPLY_Provider>(path, document, range);
+        return readWithProvider<DEPLY_Provider, DEPLY_ConfigurationNode>(path, document, range);
     case HNModelFormatOBJ:
-        return readWithProvider<DEOBJ_Provider>(path, document, range);
+        return readWithProvider<DEOBJ_Provider, DEOBJ_ConfigurationNode>(path, document, range);
     case HNModelFormatGLB:
-        return readWithProvider<DEGLTF_Provider>(path, document, range);
+        return readWithProvider<DEGLTF_Provider, DEGLTF_ConfigurationNode>(path, document, range);
     }
 
     return false;
