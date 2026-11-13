@@ -42,6 +42,25 @@
 				<string>com.twarge.stairs.fcstd</string>
 			</array>
 		</dict>
+		<!-- Files named .stl, .obj and .glb carry the system's types, not
+		     the app's own, so the app is offered for them only if it claims
+		     those too. Alternate: it opens them without taking them from
+		     the app that already does. The system's PLY type is left out
+		     because the importer cannot read PLY. -->
+		<dict>
+			<key>CFBundleTypeName</key>
+			<string>3D Model</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>LSHandlerRank</key>
+			<string>Alternate</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>public.standard-tesselated-geometry-format</string>
+				<string>public.geometry-definition-format</string>
+				<string>org.khronos.glb</string>
+			</array>
+		</dict>
 	</array>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>

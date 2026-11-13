@@ -172,6 +172,9 @@
 				<string>com.twarge.stairs.ply</string>
 				<string>com.twarge.stairs.obj</string>
 				<string>com.twarge.stairs.glb</string>
+				<string>public.standard-tesselated-geometry-format</string>
+				<string>public.geometry-definition-format</string>
+				<string>org.khronos.glb</string>
 			</array>
 			<key>QLThumbnailMinimumDimension</key>
 			<integer>0</integer>

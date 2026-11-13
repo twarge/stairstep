@@ -22,11 +22,22 @@ extension UTType {
     nonisolated static let glbModel = UTType(exportedAs: "com.twarge.stairs.glb", conformingTo: .data)
     // A FreeCAD document is a zip container, so it conforms to .zip rather than .data.
     nonisolated static let freeCADModel = UTType(exportedAs: "com.twarge.stairs.fcstd", conformingTo: .zip)
+
+    /// The system's own types for the mesh formats. A file named `.stl`, `.obj`
+    /// or `.glb` carries one of these rather than the app's type for the same
+    /// extension, so a document is only readable if these are accepted too.
+    /// The system's PLY type is absent: the importer has no PLY reader.
+    nonisolated static let systemMeshModels: [UTType] = [
+        "public.standard-tesselated-geometry-format",
+        "public.geometry-definition-format",
+        "org.khronos.glb"
+    ].compactMap { UTType($0) }
 }
 
 nonisolated struct StepFileDocument: FileDocument, Equatable {
     static var readableContentTypes: [UTType] {
         [.stepModel, .igesModel, .brepModel, .stlModel, .plyModel, .objModel, .glbModel, .freeCADModel]
+            + UTType.systemMeshModels
     }
 
     static var writableContentTypes: [UTType] { [.stepModel] }
