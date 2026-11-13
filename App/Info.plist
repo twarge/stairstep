@@ -67,6 +67,12 @@
 	<true/>
 	<key>UTExportedTypeDeclarations</key>
 	<array>
+		<!-- UTTypeIcons has the system draw each type's document icon: the
+		     app icon on a folded page, labelled with the format. Without it
+		     the text formats get the text-document icon and FCStd the zip
+		     archive's. Files named .stl, .ply, .obj and .glb resolve to the
+		     system's own types for those extensions, so those four labels
+		     show only on a system that has no such type. -->
 		<dict>
 			<key>UTTypeConformsTo</key>
 			<array>
@@ -75,6 +81,11 @@
 			</array>
 			<key>UTTypeDescription</key>
 			<string>STEP Model</string>
+			<key>UTTypeIcons</key>
+			<dict>
+				<key>UTTypeIconText</key>
+				<string>step</string>
+			</dict>
 			<key>UTTypeIdentifier</key>
 			<string>com.twarge.stairs.step</string>
 			<key>UTTypeTagSpecification</key>
@@ -95,6 +106,11 @@
 			</array>
 			<key>UTTypeDescription</key>
 			<string>IGES Model</string>
+			<key>UTTypeIcons</key>
+			<dict>
+				<key>UTTypeIconText</key>
+				<string>iges</string>
+			</dict>
 			<key>UTTypeIdentifier</key>
 			<string>com.twarge.stairs.iges</string>
 			<key>UTTypeTagSpecification</key>
@@ -114,6 +130,11 @@
 			</array>
 			<key>UTTypeDescription</key>
 			<string>Open CASCADE BREP Model</string>
+			<key>UTTypeIcons</key>
+			<dict>
+				<key>UTTypeIconText</key>
+				<string>brep</string>
+			</dict>
 			<key>UTTypeIdentifier</key>
 			<string>com.twarge.stairs.brep</string>
 			<key>UTTypeTagSpecification</key>
@@ -133,6 +154,11 @@
 			</array>
 			<key>UTTypeDescription</key>
 			<string>STL Model</string>
+			<key>UTTypeIcons</key>
+			<dict>
+				<key>UTTypeIconText</key>
+				<string>stl</string>
+			</dict>
 			<key>UTTypeIdentifier</key>
 			<string>com.twarge.stairs.stl</string>
 			<key>UTTypeTagSpecification</key>
@@ -151,6 +177,11 @@
 			</array>
 			<key>UTTypeDescription</key>
 			<string>PLY Model</string>
+			<key>UTTypeIcons</key>
+			<dict>
+				<key>UTTypeIconText</key>
+				<string>ply</string>
+			</dict>
 			<key>UTTypeIdentifier</key>
 			<string>com.twarge.stairs.ply</string>
 			<key>UTTypeTagSpecification</key>
@@ -169,6 +200,11 @@
 			</array>
 			<key>UTTypeDescription</key>
 			<string>OBJ Model</string>
+			<key>UTTypeIcons</key>
+			<dict>
+				<key>UTTypeIconText</key>
+				<string>obj</string>
+			</dict>
 			<key>UTTypeIdentifier</key>
 			<string>com.twarge.stairs.obj</string>
 			<key>UTTypeTagSpecification</key>
@@ -187,6 +223,11 @@
 			</array>
 			<key>UTTypeDescription</key>
 			<string>Binary glTF Model</string>
+			<key>UTTypeIcons</key>
+			<dict>
+				<key>UTTypeIconText</key>
+				<string>glb</string>
+			</dict>
 			<key>UTTypeIdentifier</key>
 			<string>com.twarge.stairs.glb</string>
 			<key>UTTypeTagSpecification</key>
@@ -205,6 +246,11 @@
 			</array>
 			<key>UTTypeDescription</key>
 			<string>FreeCAD Document</string>
+			<key>UTTypeIcons</key>
+			<dict>
+				<key>UTTypeIconText</key>
+				<string>fcstd</string>
+			</dict>
 			<key>UTTypeIdentifier</key>
 			<string>com.twarge.stairs.fcstd</string>
 			<key>UTTypeTagSpecification</key>
