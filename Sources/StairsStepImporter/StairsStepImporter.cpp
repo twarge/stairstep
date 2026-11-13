@@ -12,8 +12,6 @@
 #include <DEIGES_Provider.hxx>
 #include <DEOBJ_ConfigurationNode.hxx>
 #include <DEOBJ_Provider.hxx>
-#include <DEPLY_ConfigurationNode.hxx>
-#include <DEPLY_Provider.hxx>
 #include <DESTL_ConfigurationNode.hxx>
 #include <DESTL_Provider.hxx>
 #include <IFSelect_ReturnStatus.hxx>
@@ -412,8 +410,6 @@ bool readDocument(
         return readBREP(path, document, range);
     case HNModelFormatSTL:
         return readWithProvider<DESTL_Provider, DESTL_ConfigurationNode>(path, document, range);
-    case HNModelFormatPLY:
-        return readWithProvider<DEPLY_Provider, DEPLY_ConfigurationNode>(path, document, range);
     case HNModelFormatOBJ:
         return readWithProvider<DEOBJ_Provider, DEOBJ_ConfigurationNode>(path, document, range);
     case HNModelFormatGLB:

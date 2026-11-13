@@ -108,24 +108,6 @@
 			<key>UTTypeConformsTo</key>
 			<array>
 				<string>public.3d-content</string>
-				<string>public.data</string>
-			</array>
-			<key>UTTypeDescription</key>
-			<string>PLY Model</string>
-			<key>UTTypeIdentifier</key>
-			<string>com.twarge.stairs.ply</string>
-			<key>UTTypeTagSpecification</key>
-			<dict>
-				<key>public.filename-extension</key>
-				<array>
-					<string>ply</string>
-				</array>
-			</dict>
-		</dict>
-		<dict>
-			<key>UTTypeConformsTo</key>
-			<array>
-				<string>public.3d-content</string>
 				<string>public.text</string>
 			</array>
 			<key>UTTypeDescription</key>
@@ -171,7 +153,6 @@
 				<string>com.twarge.stairs.iges</string>
 				<string>com.twarge.stairs.brep</string>
 				<string>com.twarge.stairs.stl</string>
-				<string>com.twarge.stairs.ply</string>
 				<string>com.twarge.stairs.obj</string>
 				<string>com.twarge.stairs.glb</string>
 				<string>public.standard-tesselated-geometry-format</string>

@@ -17,6 +17,8 @@ extension UTType {
     nonisolated static let igesModel = UTType(exportedAs: "com.twarge.stairs.iges", conformingTo: .text)
     nonisolated static let brepModel = UTType(exportedAs: "com.twarge.stairs.brep", conformingTo: .data)
     nonisolated static let stlModel = UTType(exportedAs: "com.twarge.stairs.stl", conformingTo: .data)
+    // Written by Export only: the importer has no PLY reader, so this is not
+    // among the readable types below.
     nonisolated static let plyModel = UTType(exportedAs: "com.twarge.stairs.ply", conformingTo: .data)
     nonisolated static let objModel = UTType(exportedAs: "com.twarge.stairs.obj", conformingTo: .text)
     nonisolated static let glbModel = UTType(exportedAs: "com.twarge.stairs.glb", conformingTo: .data)
@@ -36,7 +38,7 @@ extension UTType {
 
 nonisolated struct StepFileDocument: FileDocument, Equatable {
     static var readableContentTypes: [UTType] {
-        [.stepModel, .igesModel, .brepModel, .stlModel, .plyModel, .objModel, .glbModel, .freeCADModel]
+        [.stepModel, .igesModel, .brepModel, .stlModel, .objModel, .glbModel, .freeCADModel]
             + UTType.systemMeshModels
     }
 
@@ -133,7 +135,8 @@ nonisolated struct SharedModelFile: Transferable {
 
     /// One representation per model type this app declares, each offered only
     /// for the files that carry it — every readable type, because an original
-    /// is shared under its own format, whatever was opened.
+    /// is shared under its own format, whatever was opened, and PLY, which is
+    /// only ever an export.
     ///
     /// Built through the helper below with every closure's types spelled out,
     /// which keeps the result builder tractable for the type checker.

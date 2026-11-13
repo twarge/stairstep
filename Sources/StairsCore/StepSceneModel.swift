@@ -138,7 +138,6 @@ public enum StepFileFormat: String, CaseIterable, Sendable {
     case iges = "IGES"
     case brep = "BREP"
     case stl = "STL"
-    case ply = "PLY"
     case obj = "OBJ"
     case glb = "GLB"
     case fcstd = "FreeCAD"
@@ -156,8 +155,6 @@ public enum StepFileFormat: String, CaseIterable, Sendable {
             self = .brep
         case "stl":
             self = .stl
-        case "ply":
-            self = .ply
         case "obj":
             self = .obj
         case "glb":
@@ -177,8 +174,6 @@ public enum StepFileFormat: String, CaseIterable, Sendable {
             "brep"
         case .stl:
             "stl"
-        case .ply:
-            "ply"
         case .obj:
             "obj"
         case .glb:
@@ -203,8 +198,6 @@ public enum StepFileFormat: String, CaseIterable, Sendable {
             2
         case .stl:
             3
-        case .ply:
-            4
         case .obj:
             5
         case .glb:

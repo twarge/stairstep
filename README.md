@@ -2,7 +2,7 @@
 
 Stairstep is a document-based SwiftUI viewer for 3D model files.
 
-The macOS app opens STEP (`.step`, `.stp`, `.p21`), IGES (`.iges`, `.igs`), OpenCascade BREP (`.brep`, `.rle`), STL, PLY, OBJ, and binary glTF (`.glb`) documents, tessellates or imports them with the OpenCascade importer carried over from the sister `horizontal` app, and renders the result in SceneKit. The shared SwiftUI shell and SceneKit scene builder are written for macOS, iOS, and iPadOS.
+The macOS app opens STEP (`.step`, `.stp`, `.p21`), IGES (`.iges`, `.igs`), OpenCascade BREP (`.brep`, `.rle`), STL, OBJ, and binary glTF (`.glb`) documents, tessellates or imports them with the OpenCascade importer carried over from the sister `horizontal` app, and renders the result in SceneKit. The shared SwiftUI shell and SceneKit scene builder are written for macOS, iOS, and iPadOS.
 The macOS bundle also embeds Finder Quick Look preview and thumbnail extensions for supported 3D model documents.
 File > Open Demo Model on macOS, or the Open Demo Model action on the iOS and iPadOS document launch screen, opens a bundled stair sample STEP model.
 

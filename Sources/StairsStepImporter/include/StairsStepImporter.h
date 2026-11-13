@@ -36,7 +36,6 @@ typedef enum HNModelFormat {
     HNModelFormatIGES = 1,
     HNModelFormatBREP = 2,
     HNModelFormatSTL = 3,
-    HNModelFormatPLY = 4,
     HNModelFormatOBJ = 5,
     HNModelFormatGLB = 6
 } HNModelFormat;

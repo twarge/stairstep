@@ -19,7 +19,6 @@
 				<string>brep</string>
 				<string>rle</string>
 				<string>stl</string>
-				<string>ply</string>
 				<string>obj</string>
 				<string>glb</string>
 			</array>
@@ -35,7 +34,6 @@
 				<string>com.twarge.stairs.iges</string>
 				<string>com.twarge.stairs.brep</string>
 				<string>com.twarge.stairs.stl</string>
-				<string>com.twarge.stairs.ply</string>
 				<string>com.twarge.stairs.obj</string>
 				<string>com.twarge.stairs.glb</string>
 			</array>
@@ -210,6 +208,8 @@
 				</array>
 			</dict>
 		</dict>
+		<!-- PLY is written by Export only. The importer has no PLY reader,
+		     so no document type lists this type. -->
 		<dict>
 			<key>UTTypeConformsTo</key>
 			<array>
